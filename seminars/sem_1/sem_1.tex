@@ -52,6 +52,15 @@ sorting=ynt
     
     \section*{Methods}
 
+        \begin{itemize}
+            \item TaskLocalRNG: a token that represents use of the currently active Task-local stream, deterministically seeded from the parent task, or by RandomDevice (with system randomness) at program start
+            \item Xoshiro: generates a high-quality stream of random numbers with a small state vector and high performance using the Xoshiro256++ algorithm
+            \item RandomDevice: for OS-provided entropy. This may be used for cryptographically secure random numbers (CS(P)RNG).
+            \item MersenneTwister: an alternate high-quality PRNG which was the default in older versions of Julia, and is also quite fast, but requires much more space to store the state vector and generate a random sequence.
+            \item Parallel versions
+            \item Sample from normal or exponential distribution
+        \end{itemize}
+
     \section*{Results}
 
     \section*{Discussion}
