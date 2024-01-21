@@ -58,7 +58,7 @@ sorting=ynt
     
     \section*{Methods}
 
-        In the standard library of the Julia programming language, there are several algorithms used to generate psuedo-random numbers\cite*{Julia-2017}: \texttt{TaskLocalRNG, Xoshiro, RandomDevice}, and \texttt{MersenneTwister}.
+        The standard library of the Julia programming language, contains several algorithms to generate psuedo-random numbers\cite*{Julia-2017}: \texttt{TaskLocalRNG, Xoshiro, RandomDevice}, and \texttt{MersenneTwister}.
 
         % \begin{itemize}
         %     \item TaskLocalRNG: a token that represents use of the currently active Task-local stream, deterministically seeded from the parent task, or by RandomDevice (with system randomness) at program start
@@ -82,13 +82,29 @@ sorting=ynt
 
         \subsection*{Xoshiro}
 
-            \begin{quote}
-                \textit{Xoshiro256++ is a fast pseudorandom number generator described by David Blackman and Sebastiano Vigna in "Scrambled Linear Pseudorandom Number Generators", ACM Trans. Math. Softw., 2021. Reference implementation is available at http://prng.di.unimi.it}
+            The following statements come from \cite*{xoroshiro}
+            \begin{itemize}
+                \item xor\_o\_shi\_ro = XOR/shift/rotate
+                \item sub ns speed
+                \item state space of 256 bits
+                \item if you only need 64-bit floats, xoshiro256+ is 15\% faster with the same properties
+                \item lowest bits have low linear complexity
+                \item xoroshiro128 family is the same speed in half the space (suitable for low-scale parallelism)
+                \item xoshiro128 family is 32 bits and thus applicable to be used on GPUs
+                \item Also used in FORTRAN
+                \item \href{https://prng.di.unimi.it/xoshiro256plusplus.c}{C code}
+            \end{itemize}
 
-                \textit{Apart from the high speed, Xoshiro has a small memory footprint, making it suitable for applications where many different random states need to be held for long time.}
+            \begin{quote}
 
                 \textit{Julia's Xoshiro implementation has a bulk-generation mode; this seeds new virtual PRNGs from the parent, and uses SIMD to generate in parallel (i.e. the bulk stream consists of multiple interleaved xoshiro instances). The virtual PRNGs are discarded once the bulk request has been serviced (and should cause no heap allocations).}
             \end{quote}
+
+        \subsection*{congruential arithmetic}
+
+            \begin{itemize}
+                \item need 128-bit operations.
+            \end{itemize}
 
         \subsection*{RandomDevice}
         

@@ -10,3 +10,23 @@
   doi       = {10.1137/141000671},
   url       = {https://epubs.siam.org/doi/10.1137/141000671}
 }
+
+@article{xoroshiro,
+  author     = {Blackman, David and Vigna, Sebastiano},
+  title      = {Scrambled Linear Pseudorandom Number Generators},
+  year       = {2021},
+  issue_date = {December 2021},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {47},
+  number     = {4},
+  issn       = {0098-3500},
+  url        = {https://doi.org/10.1145/3460772},
+  doi        = {10.1145/3460772},
+  abstract   = {F2-linear pseudorandom number generators are very popular due to their high speed, to the ease with which generators with a sizable state space can be created, and to their provable theoretical properties. However, they suffer from linear artifacts that show as failures in linearity-related statistical tests such as the binary-rank and the linear-complexity test. In this article, we give two new contributions. First, we introduce two new F2-linear transformations that have been handcrafted to have good statistical properties and at the same time to be programmable very efficiently on superscalar processors, or even directly in hardware. Then, we describe some scramblers, that is, nonlinear functions applied to the state array that reduce or delete the linear artifacts, and propose combinations of linear transformations and scramblers that give extremely fast pseudorandom number generators of high quality. A novelty in our approach is that we use ideas from the theory of filtered linear-feedback shift registers to prove some properties of our scramblers, rather than relying purely on heuristics. In the end, we provide simple, extremely fast generators that use a few hundred bits of memory, have provable properties, and pass strong statistical tests.},
+  journal    = {ACM Trans. Math. Softw.},
+  month      = {sep},
+  articleno  = {36},
+  numpages   = {32},
+  keywords   = {Pseudorandom number generators}
+}
