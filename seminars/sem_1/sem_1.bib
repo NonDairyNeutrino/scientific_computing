@@ -11,7 +11,7 @@
   url       = {https://epubs.siam.org/doi/10.1137/141000671}
 }
 
-@article{xoroshiro,
+@article{xoroshiroPaper,
   author     = {Blackman, David and Vigna, Sebastiano},
   title      = {Scrambled Linear Pseudorandom Number Generators},
   year       = {2021},
@@ -25,8 +25,53 @@
   doi        = {10.1145/3460772},
   abstract   = {F2-linear pseudorandom number generators are very popular due to their high speed, to the ease with which generators with a sizable state space can be created, and to their provable theoretical properties. However, they suffer from linear artifacts that show as failures in linearity-related statistical tests such as the binary-rank and the linear-complexity test. In this article, we give two new contributions. First, we introduce two new F2-linear transformations that have been handcrafted to have good statistical properties and at the same time to be programmable very efficiently on superscalar processors, or even directly in hardware. Then, we describe some scramblers, that is, nonlinear functions applied to the state array that reduce or delete the linear artifacts, and propose combinations of linear transformations and scramblers that give extremely fast pseudorandom number generators of high quality. A novelty in our approach is that we use ideas from the theory of filtered linear-feedback shift registers to prove some properties of our scramblers, rather than relying purely on heuristics. In the end, we provide simple, extremely fast generators that use a few hundred bits of memory, have provable properties, and pass strong statistical tests.},
   journal    = {ACM Trans. Math. Softw.},
-  month      = {sep},
+  month      = {9},
   articleno  = {36},
   numpages   = {32},
+  keywords   = {Pseudorandom number generators}
+}
+
+@online{shootout,
+    author = {Blackman, David and Vigna, Sebastiano},
+    url    = {https://prng.di.unimi.it/}
+}
+
+@article{TestU01,
+  author     = {L'Ecuyer, Pierre and Simard, Richard},
+  title      = {TestU01: A C library for empirical testing of random number generators},
+  year       = {2007},
+  issue_date = {August 2007},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {33},
+  number     = {4},
+  issn       = {0098-3500},
+  url        = {https://doi.org/10.1145/1268776.1268777},
+  doi        = {10.1145/1268776.1268777},
+  abstract   = {We introduce TestU01, a software library implemented in the ANSI C language, and offering a collection of utilities for the empirical statistical testing of uniform random number generators (RNGs). It provides general implementations of the classical statistical tests for RNGs, as well as several others tests proposed in the literature, and some original ones. Predefined tests suites for sequences of uniform random numbers over the interval (0, 1) and for bit sequences are available. Tools are also offered to perform systematic studies of the interaction between a specific test and the structure of the point sets produced by a given family of RNGs. That is, for a given kind of test and a given class of RNGs, to determine how large should be the sample size of the test, as a function of the generator's period length, before the generator starts to fail the test systematically. Finally, the library provides various types of generators implemented in generic form, as well as many specific generators proposed in the literature or found in widely used software. The tests can be applied to instances of the generators predefined in the library, or to user-defined generators, or to streams of random numbers produced by any kind of device or stored in files. Besides introducing TestU01, the article provides a survey and a classification of statistical tests for RNGs. It also applies batteries of tests to a long list of widely used RNGs.},
+  journal    = {ACM Trans. Math. Softw.},
+  month      = {8},
+  articleno  = {22},
+  numpages   = {40},
+  keywords   = {Statistical software, random number generators, random number tests, statistical test}
+}
+
+@article{HammingWeightDependencies,
+  author     = {Blackman, David and Vigna, Sebastiano},
+  title      = {A New Test for Hamming-Weight Dependencies},
+  year       = {2022},
+  issue_date = {July 2022},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {32},
+  number     = {3},
+  issn       = {1049-3301},
+  url        = {https://doi.org/10.1145/3527582},
+  doi        = {10.1145/3527582},
+  abstract   = {We describe a new statistical test for pseudorandom number generators (PRNGs). Our test can find bias induced by dependencies among the Hamming weights of the outputs of a PRNG, even for PRNGs that pass state-of-the-art tests of the same kind from the literature, and particularly for generators based on F2-linear transformations such as the dSFMT&nbsp;[22], xoroshiro1024+ &nbsp;[1], and WELL512&nbsp;[19].},
+  journal    = {ACM Trans. Model. Comput. Simul.},
+  month      = {7},
+  articleno  = {19},
+  numpages   = {13},
   keywords   = {Pseudorandom number generators}
 }
