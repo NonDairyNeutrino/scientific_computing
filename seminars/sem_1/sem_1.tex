@@ -37,7 +37,7 @@
 backend=biber,
 sorting=ynt
 ]{biblatex}
-\addbibresource{bib.bib}
+\addbibresource{sem_1.bib}
 
 % =======TITLE=======
 \title{\vspace*{-0.625in}CS 565: Scientific Computing \\ Seminar 1: Psuedo-Random Number Generators}
@@ -49,21 +49,62 @@ sorting=ynt
     \maketitle
 
     \section*{Introduction}
+
+        \begin{itemize}
+            \item What was used before these methods?  Was there a standard go-to?
+            \item What hole do these fill?
+            \item Other methods than mathematical generation?  e.g. physical generation?
+        \end{itemize}
     
     \section*{Methods}
 
-        \begin{itemize}
-            \item TaskLocalRNG: a token that represents use of the currently active Task-local stream, deterministically seeded from the parent task, or by RandomDevice (with system randomness) at program start
-            \item Xoshiro: generates a high-quality stream of random numbers with a small state vector and high performance using the Xoshiro256++ algorithm
-            \item RandomDevice: for OS-provided entropy. This may be used for cryptographically secure random numbers (CS(P)RNG).
-            \item MersenneTwister: an alternate high-quality PRNG which was the default in older versions of Julia, and is also quite fast, but requires much more space to store the state vector and generate a random sequence.
-            \item Parallel versions
-            \item Sample from normal or exponential distribution
-        \end{itemize}
+        In the standard library of the Julia programming language, there are several algorithms used to generate psuedo-random numbers\cite*{Julia-2017}: \texttt{TaskLocalRNG, Xoshiro, RandomDevice}, and \texttt{MersenneTwister}.
+
+        % \begin{itemize}
+        %     \item TaskLocalRNG: a token that represents use of the currently active Task-local stream, deterministically seeded from the parent task, or by RandomDevice (with system randomness) at program start
+        %     \item Xoshiro: generates a high-quality stream of random numbers with a small state vector and high performance using the Xoshiro256++ algorithm
+        %     \item RandomDevice: for OS-provided entropy. This may be used for cryptographically secure random numbers (CS(P)RNG).
+        %     \item MersenneTwister: an alternate high-quality PRNG which was the default in older versions of Julia, and is also quite fast, but requires much more space to store the state vector and generate a random sequence.
+        %     \item Parallel versions
+        %     \item Sample from normal or exponential distribution
+        %     \item stableRNGs and Lehmer random number generator
+        % \end{itemize}
+
+        \subsection*{TaskLocalRNG}
+
+        According to the Julia documentation\cite*{Julia-2017}:
+
+            \begin{quote}
+                \textit{The \texttt{TaskLocalRNG} has state that is local to its task, not its thread. It is seeded upon task creation, from the state of its parent task. Therefore, task creation is an event that changes the parent's RNG state.}
+
+                \textit{As an upside, the \texttt{TaskLocalRNG} is pretty fast, and permits reproducible multithreaded simulations (barring race conditions), independent of scheduler decisions. As long as the number of threads is not used to make decisions on task creation, simulation results are also independent of the number of available threads / CPUs. The random stream should not depend on hardware specifics, up to endianness and possibly word size.}
+            \end{quote}
+
+        \subsection*{Xoshiro}
+
+            \begin{quote}
+                \textit{Xoshiro256++ is a fast pseudorandom number generator described by David Blackman and Sebastiano Vigna in "Scrambled Linear Pseudorandom Number Generators", ACM Trans. Math. Softw., 2021. Reference implementation is available at http://prng.di.unimi.it}
+
+                \textit{Apart from the high speed, Xoshiro has a small memory footprint, making it suitable for applications where many different random states need to be held for long time.}
+
+                \textit{Julia's Xoshiro implementation has a bulk-generation mode; this seeds new virtual PRNGs from the parent, and uses SIMD to generate in parallel (i.e. the bulk stream consists of multiple interleaved xoshiro instances). The virtual PRNGs are discarded once the bulk request has been serviced (and should cause no heap allocations).}
+            \end{quote}
+
+        \subsection*{RandomDevice}
+        
+        \subsection*{MersenneTwister}
 
     \section*{Results}
 
+        \begin{itemize}
+            \item Show these algorithms in practice
+        \end{itemize}
+
     \section*{Discussion}
+
+        \begin{itemize}
+            \item Compare and contrast each of these algorithms
+        \end{itemize}
 
     \section*{Conclusion}
 
