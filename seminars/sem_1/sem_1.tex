@@ -82,24 +82,23 @@ sorting=ynt
 
         \subsection*{Xoshiro256++}
 
-            The following statements come from \cite{xoroshiroPaper} or \cite{shootout}
+            The following statements come from \cite{XoroshiroPaper} or \cite{Shootout}
             \begin{itemize}
                 \item xor\_o\_shi\_ro = XOR/shift/rotate
                 \item sub ns speed
                 \item state space of 256 bits
                 \item if you only need 64-bit floats, xoshiro256+ is 15\% faster with the same properties
                 \item period of $2^{256} - 1$
-                \item provides $2^128$ non-overlapping sequences of length $2^128$
+                \item provides $2^{128}$ non-overlapping sequences of length $2^{128}$
                 \item lowest bits have low linear complexity
                 \item xoroshiro128 family is the same speed in half the space (suitable for low-scale parallelism)
                 \item xoshiro128 family is 32 bits and thus applicable to be used on GPUs
-                \item Also used in FORTRAN
                 \item equidistribution: every n/64-tuple of consecutive 64-bit values appears exactly once in the output, except for the zero tuple (and this is the largest possible dimension).
                 \item \href{https://prng.di.unimi.it/xoshiro256plusplus.c}{C code}
+                \item platforms: javascript, rust, java, .net, erlang, FORTRAN, julia, lua, IoT (mbed and zephyr)
             \end{itemize}
 
             \begin{quote}
-
                 \textit{Julia's Xoshiro implementation has a bulk-generation mode; this seeds new virtual PRNGs from the parent, and uses SIMD to generate in parallel (i.e. the bulk stream consists of multiple interleaved xoshiro instances). The virtual PRNGs are discarded once the bulk request has been serviced (and should cause no heap allocations).}
             \end{quote}
 
@@ -113,12 +112,16 @@ sorting=ynt
         
         \subsection*{MersenneTwister}
 
+            \begin{itemize}
+                \item platforms: many programming languages, most notably Python\cite{Python}, Microsoft Excel\cite{Excel}, MATLAB\cite{MATLAB}, C++\cite{Cpp}
+            \end{itemize}
+
     \section*{Results}
 
         \begin{itemize}
             \item Show these algorithms in practice
-            \item Quality\cite{shootout}: Compare xoshiro and relatives using BigCrush suite of tests \cite{TestU01} and \cite{HammingWeightDependencies}
-            \item Vectorization using AVX2 (Advanced Vector Extensions) vectorization \cite{shootout}
+            \item Quality\cite{Shootout}: Compare xoshiro and relatives using BigCrush suite of tests \cite{TestU01} and \cite{HammingWeightDependencies}
+            \item Vectorization using AVX2 (Advanced Vector Extensions) vectorization \cite{Shootout}
         \end{itemize}
 
     \section*{Discussion}
