@@ -76,6 +76,12 @@
   keywords   = {Pseudorandom number generators}
 }
 
+@manual{LowComp,
+  author       = {Blackman, David and Vigna, Sebastiano},
+  title        = {Testing lowest bits in isolation},
+  url          = {https://xoshiro.di.unimi.it/lowcomp.php}
+}
+
 @manual{Python,
   author       = {},
   title        = {Python Standard PRNG},
@@ -97,10 +103,16 @@
   year            = {2014}
 }
 
-@manual{Cpp,
+@manual{CppMT,
   author       = {ISO/IEC JTC},
   title        = {Mersenne Twister Engine},
   url          = {https://en.cppreference.com/w/cpp/numeric/random/mersenne_twister_engine}
+}
+
+@manual{CppLhemer,
+  author       = {ISO/IEC JTC},
+  title        = {std::minstd rand},
+  url          = {https://www.gnu.org/software/gsl/doc/html/rng.html#c.gsl_rng_ranf},
 }
 
 @manual{Mathematica,
@@ -113,6 +125,21 @@
   author       = {NVIDIA Corporation},
   title        = {Generator Types},
   url          = {https://docs.nvidia.com/cuda/curand/host-api-overview.html#generator-types},
+}
+
+@misc{TinyMT,
+  author    = {Saito, Mutsuo and Matsumoto, Makoto},
+  howpublished = {GitHub},
+  title        = {TinyMT},
+  year         = {2013}
+}
+
+@misc{CryptMT,
+  author       = {Saito, Mutsuo and Matsumoto, Makoto},
+  howpublished = {online},
+  title        = {CryptMT},
+  year         = {2013},
+  url          = {http://www.math.sci.hiroshima-u.ac.jp/m-mat/MT/CRYPTMT/index.html},
 }
 
 @inproceedings{SFMT,
@@ -198,7 +225,7 @@
   title        = {PractRand},
   url          = {https://pracrand.sourceforge.net/},
 }
-
+Shootout
 @misc{WhyNotRandomDevice,
   author       = {Chris Beck},
   howpublished = {StackOverflow},
