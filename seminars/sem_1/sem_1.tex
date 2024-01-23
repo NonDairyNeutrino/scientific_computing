@@ -40,7 +40,7 @@ sorting=ynt
 \addbibresource{sem_1.bib}
 
 % =======TITLE=======
-\title{\vspace*{-0.625in}CS 565: Scientific Computing \\ Seminar 1: Psuedo-Random Number Generators}
+\title{\vspace*{-0.625in}CS 565: Scientific Computing \\ Seminar 1: A Survey of Psuedo-Random Number Generators}
 \author{Nathan Chapman}
 \date{\today}
 
@@ -50,35 +50,42 @@ sorting=ynt
 
     \section*{Introduction}
 
-        \begin{itemize}
-            \item What was used before these methods?  Was there a standard go-to?
-            \item What hole do these fill?
-            \item Other methods than mathematical generation?  e.g. physical generation?
-        \end{itemize}
+        Randomness is a crucial part of scientific computing due to its ability to give deterministic algorithms the ability to adjust in ways they aren't otherwise able.  A notable application of this is in computational optimization.  Though, a problem arises when trying to get a sense of randomness on a machine that is built to be deterministic.  The solution to this problem is in \emph{psuedo}-random number generators (PRNG).
+
+        While computers were built to be deterministic, they still exhibit a source of randomness (i.e. entropy).  Using this source as a PRNG is possible, but too slow for any modern application where the programer needs many generations\cite{WhyNotRandomDevice}.  Because of its need, there have been many developments over the years for more efficient (in some cases \emph{much} more) PRNGs.  What follows is a survey of some of the most employed PRNGs used in scientific computing.
     
     \section*{Methods}
 
-        The standard library of the Julia programming language, contains several algorithms to generate psuedo-random numbers\cite{Julia-2017}: \texttt{TaskLocalRNG, Xoshiro, RandomDevice}, and \texttt{MersenneTwister}.
+        The standard library of the numerical, scientific computing programming language \emph{Julia} contains two main algorithms to generate psuedo-random numbers\cite{Julia-2017}: \texttt{Xoshiro256++}, and \texttt{MersenneTwister}.  As a historical note, \texttt{Lehmer} generation is also investigated.
 
-        % \begin{itemize}
-        %     \item TaskLocalRNG: a token that represents use of the currently active Task-local stream, deterministically seeded from the parent task, or by RandomDevice (with system randomness) at program start
-        %     \item Xoshiro: generates a high-quality stream of random numbers with a small state vector and high performance using the Xoshiro256++ algorithm
-        %     \item RandomDevice: for OS-provided entropy. This may be used for cryptographically secure random numbers (CS(P)RNG).
-        %     \item MersenneTwister: an alternate high-quality PRNG which was the default in older versions of Julia, and is also quite fast, but requires much more space to store the state vector and generate a random sequence.
-        %     \item Parallel versions
-        %     \item Sample from normal or exponential distribution
-        %     \item stableRNGs and Lehmer random number generator
-        % \end{itemize}
+        \subsection*{Lehmer}
 
-        \subsection*{TaskLocalRNG}
+            The Lhemer PRNG (also known as the Park–Miller random number generator) is one of the oldest, dating back to the mid 1950s being created by VonNeumann, but it is a simple generator and can still lead to sufficient statistical properties.
 
-        According to the Julia documentation\cite{Julia-2017}:
+            The Lhemer PRNG finds its roots as a linear congruential generator (LCG) taking the form
 
-            \begin{quote}
-                \textit{The \texttt{TaskLocalRNG} has state that is local to its task, not its thread. It is seeded upon task creation, from the state of its parent task. Therefore, task creation is an event that changes the parent's RNG state.}
+            \begin{equation*}
+                X_{k + 1} = a \cdot X_k \mod m
+            \end{equation*}
 
-                \textit{As an upside, the \texttt{TaskLocalRNG} is pretty fast, and permits reproducible multithreaded simulations (barring race conditions), independent of scheduler decisions. As long as the number of threads is not used to make decisions on task creation, simulation results are also independent of the number of available threads / CPUs. The random stream should not depend on hardware specifics, up to endianness and possibly word size.}
-            \end{quote}
+            where the modulus $m$ is a prime number or a power of a prime number, the multiplier $a$ is an element of high multiplicative order modulo $m$ (e.g., a primitive root modulo $n$), and the seed $X_0$ is coprime to $m$.  One of the most popular implementations is the MINSTD: $m = 2^{31} - 1,\ a = 48271$.
+
+            The Lhemer PRNG shows up in several places including: Julia StableRNGs\cite{StableRNGs}, C++11 as \verb|minstd_rand|, and the GNU Scientific Library\cite{GNUSciLib}.
+
+            This method reached poputlarity due to several factors:
+            
+            \begin{itemize}
+                \item its ability to only use 32-bit arithmetic using Schrage's method; thus being able to be implemented on GPU hardware
+                \item It passes Big Crush in TestU01\cite{TestU01}
+                \item It is fast and memory efficient (one modulo-m number, often 32 or 64 bits to retain state)
+            \end{itemize}
+
+            Though there are some drawbacks:
+
+            \begin{itemize}
+                \item It fails the TMFn test from PractRand\cite{Practrand}
+                \item A prime modulus implies modular reduction requires a double-width product and an explicit reduction step.
+            \end{itemize}
 
         \subsection*{Xoshiro256++}
 
@@ -101,14 +108,6 @@ sorting=ynt
             \begin{quote}
                 \textit{Julia's Xoshiro implementation has a bulk-generation mode; this seeds new virtual PRNGs from the parent, and uses SIMD to generate in parallel (i.e. the bulk stream consists of multiple interleaved xoshiro instances). The virtual PRNGs are discarded once the bulk request has been serviced (and should cause no heap allocations).}
             \end{quote}
-
-        \subsection*{Congruential arithmetic}
-
-            \begin{itemize}
-                \item need 128-bit operations.
-            \end{itemize}
-
-        \subsection*{RandomDevice}
         
         \subsection*{MersenneTwister}
 
@@ -118,10 +117,21 @@ sorting=ynt
                 \begin{itemize}
                     \item passes most tests\cite{TestU01}
                     \item very long period $2^{19937} - 1$
+                    \item can be used in GPU\cite{MTGP}
                 \end{itemize}
                 \item Cons:
                     \begin{itemize}
-                        \item 
+                        \item Relatively large state buffer, of almost 2.5 kB, unless the TinyMT variant (discussed below) is used.
+                        \item Mediocre throughput by modern standards, unless the SFMT variant (discussed below) is used\cite{SFMT}.
+                        \item Exhibits two clear failures (linear complexity) in both Crush and BigCrush in the TestU01 suite.\cite{TestU01}
+                        \item Is not cryptographically secure, unless the CryptMT variant (discussed below) is used. The reason is that observing a sufficient number of iterations (624 in the case of MT19937, since this is the size of the state vector from which future iterations are produced) allows one to predict all future iterations.
+                    \end{itemize}
+                \item mathematical detail:
+                    \begin{itemize}
+                        \item For a $w$-bit word length, the Mersenne Twister generates integers in the range $[0, 2^w - 1]$.
+                        \item The Mersenne Twister algorithm is based on a matrix linear recurrence over a finite binary field $\mathbf{F}_2$.
+                        \item The algorithm is a twisted generalised feedback shift register\cite{TwistedGFSR} (twisted GFSR, or TGFSR) of rational normal form (TGFSR(R)), with state bit reflection and tempering.
+                        \item The basic idea is to define a series $x_i$  through a simple recurrence relation, and then output numbers of the form $x_i^T$, where $T$ is an invertible $\mathbf{F}_2$-matrix called a tempering matrix.
                     \end{itemize}
             \end{itemize}
 
@@ -140,7 +150,8 @@ sorting=ynt
         \end{itemize}
 
     \section*{Conclusion}
-
+    
+    \newpage
     \printbibliography
 
 \end{document}

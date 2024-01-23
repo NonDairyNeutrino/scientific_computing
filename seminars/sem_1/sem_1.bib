@@ -114,3 +114,95 @@
   title        = {Generator Types},
   url          = {https://docs.nvidia.com/cuda/curand/host-api-overview.html#generator-types},
 }
+
+@inproceedings{SFMT,
+  author    = {Saito, Mutsuo
+               and Matsumoto, Makoto},
+  editor    = {Keller, Alexander
+               and Heinrich, Stefan
+               and Niederreiter, Harald},
+  title     = {SIMD-Oriented Fast Mersenne Twister: a 128-bit Pseudorandom Number Generator},
+  booktitle = {Monte Carlo and Quasi-Monte Carlo Methods 2006},
+  year      = {2008},
+  publisher = {Springer Berlin Heidelberg},
+  address   = {Berlin, Heidelberg},
+  pages     = {607--622},
+  abstract  = {Mersenne Twister (MT) is a widely-used fast pseudorandom number generator (PRNG) with a long period of 219937 - 1, designed 10 years ago based on 32-bit operations. In this decade, CPUs for personal computers have acquired new features, such as Single Instruction Multiple Data (SIMD) operations (i.e., 128-bit operations) and multi-stage pipelines. Here we propose a 128-bit based PRNG, named SIMD-oriented Fast Mersenne Twister (SFMT), which is analogous to MT but making full use of these features. Its recursion fits pipeline processing better than MT, and it is roughly twice as fast as optimised MT using SIMD operations. Moreover, the dimension of equidistribution of SFMT is better than MT.},
+  isbn      = {978-3-540-74496-2}
+}
+
+@article{MTGP,
+  author          = {Agner Fog},
+  journal         = {Journal of Modern Applied Statistical Methods},
+  number          = {1},
+  title           = {Pseudo-Random Number Generators for Vector Processors and Multicore Processors},
+  volume          = {14},
+  year            = {2015},
+  doi             = {https://doi.org/10.56801/10.56801/v14.i.768},
+}
+
+@article{TwistedGFSR,
+  author     = {Matsumoto, Makoto and Kurita, Yoshiharu},
+  title      = {Twisted GFSR generators},
+  year       = {1992},
+  issue_date = {July 1992},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {2},
+  number     = {3},
+  issn       = {1049-3301},
+  url        = {https://doi.org/10.1145/146382.146383},
+  doi        = {10.1145/146382.146383},
+  abstract   = {The generalized feed back shift register (GFSR) algorithm suggested by Lewis and Payne is a widely used pseudorandom number generator, but has the following serious drawbacks: (1) an initialization scheme to assure higher order equidistribution is involved and is time consuming; (2) each bit of the generated words constitutes an m-sequence based on a primitive trinomials, which shows poor randomness with respect to weight distribution; (3) a large working area is necessary; (4) the period of sequence is far shorter than the theoretical upper bound. This paper presents the twisted GFSR (TGFSR) algorithm, a slightly but essentially modified version of the GFSR, which solves all the above problems without loss of merit. Some practical TGFSR generators were implemented and passed strict empirical tests. These new generators are most suitable for simulation of a large distributive system, which requires a number of mutually independent pseudorandom number generators with compact size.},
+  journal    = {ACM Trans. Model. Comput. Simul.},
+  month      = {7},
+  pages      = {179-194},
+  numpages   = {16},
+  keywords   = {matrix linear congruential generators, generalized feedback shift registers, TLP-sequences, GF(2m), m-sequences}
+}
+
+@article{Lehmer,
+  author     = {Payne, W. H. and Rabung, J. R. and Bogyo, T. P.},
+  title      = {Coding the Lehmer pseudo-random number generator},
+  year       = {1969},
+  issue_date = {Feb. 1969},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {12},
+  number     = {2},
+  issn       = {0001-0782},
+  url        = {https://doi.org/10.1145/362848.362860},
+  doi        = {10.1145/362848.362860},
+  abstract   = {An algorithm and coding technique is presented for quick evaluation of the Lehmer pseudo-random number generator modulo 2 ** 31 - 1, a prime Mersenne number which produces 2 ** 31 - 2 numbers, on a p-bit (greater than 31) computer. The computation method is extendible to limited problems in modular arithmetic. Prime factorization for 2 ** 61 - 2 and a primitive root for 2 ** 61 - 1, the next largest prime Mersenne number, are given for possible construction of a pseudo-random number generator of increased cycle length.},
+  journal    = {Commun. ACM},
+  month      = {feb},
+  pages      = {85–86},
+  numpages   = {2},
+  keywords   = {modular arithmetic, prime factorization, primitive roots, pseudo-random number, random number, simulation, uniform frequency function, uniform probability density}
+}
+
+@manual{StableRNGs,
+  author       = {Rafael Fourquet and Eric Hanson},
+  title        = {StableRNGs},
+  url          = {https://github.com/JuliaRandom/StableRNGs.jl},
+}
+
+@manual{GNUSciLib,
+  author       = {GNU Scientific Library},
+  title        = {Random Number Generation},
+  url          = {https://www.gnu.org/software/gsl/doc/html/rng.html#other-random-number-generators},
+}
+
+@manual{Practrand,
+  author       = {Chris Doty-Humphrey},
+  title        = {PractRand},
+  url          = {https://pracrand.sourceforge.net/},
+}
+
+@misc{WhyNotRandomDevice,
+  author       = {Chris Beck},
+  howpublished = {StackOverflow},
+  title        = {Why not just use random device?},
+  year         = {2016},
+  url          = {https://stackoverflow.com/a/39301751/11595495},
+}
