@@ -4,6 +4,7 @@
 \usepackage[margin=0.625in]{geometry}
 \usepackage{parskip, setspace}
 \setstretch{1.15}
+\renewcommand{\arraystretch}{1.25}
 % TYPESETTING - MATH
 \usepackage{amsmath, amsfonts}
 \usepackage[ruled, linesnumbered, noend]{algorithm2e}
@@ -89,25 +90,6 @@ sorting=ynt
         
         \subsection*{MersenneTwister}
 
-            The Mersenne Twister PRNG is one of, if not \emph{the}, most popular and widely used PRNGs ever created.  This PRNG can be found as the default PRNG on many platforms, such as: Python\cite{Python}, Microsoft Excel\cite{Excel}, MATLAB\cite{MATLAB}, C++\cite{CppMT}, Mathematica\cite{Mathematica}, and CUDA\cite{CUDA}.
-
-            The ubiquity of the Mersenne Twister could be due to several advantages it has over other PRNGs:
-
-            \begin{itemize}
-                \item It passes most of the standard statistical benchmarks\cite{TestU01}.
-                \item It has a very long period; $2^{19937} - 1$ for the ``19937'' implementation used most.
-                \item It has a GPU implmentation\cite{MTGP}.
-            \end{itemize}
-
-            While there are these advantages, Mersenne Twister based PRNGs still face some challenges when compared to some other methods.  These challenges include:
-
-            \begin{itemize}
-                \item A relatively large state buffer (the TinyMT variant addresses this problem\cite{TinyMT}).
-                \item A generation speed that is relatively slow compared to more modern algorithms (the SFMT variant addresses this problem\cite{SFMT}).
-                \item A linear complexity highlighted in both Crush and BigCrush\cite{TestU01}.
-                \item An ability to predict all future generations after observing a certain number; e.g. for MT19937, you only need to generate 624 before being able to predict.  This predictablility makes MT19937 unsuitable for cryptographic applications.  The CryptMT variant addresses this problem\cite{CryptMT}.
-            \end{itemize}
-
             The Mersenne Twister has several key features that define its mathematical behavior:
 
             \begin{itemize}
@@ -116,7 +98,7 @@ sorting=ynt
                 \item It is based on the generalised feedback shift register (GFSR)\cite{TwistedGFSR}.
             \end{itemize}
 
-            The Mersenne Twister PRNG produces output based on two primary steps:
+            The Mersenne Twister PRNG produces output based on three primary steps:
 
             \begin{enumerate}
                 \item Generate a sequence $x_i$ of from a recurrence relation.
@@ -126,39 +108,87 @@ sorting=ynt
 
         \subsection*{Xo(ro)shiro}
 
-            While the Mersenne Twister algorithm has been quite sufficient for several years, recent improvements have come from a class of PRNGs known as the ``Xoshiro'' (xor-shift-rotate) and ``Xoroshiro'' (xor-rotate-shift-rotate).  These PRNGs come with several advantages over their older competitors\cite{XoroshiroPaper, Shootout}:
+            While the Mersenne Twister algorithm has been quite sufficient for several years, recent improvements have come from a class of PRNGs known as the ``Xoshiro'' (xor-shift-rotate) and ``Xoroshiro'' (xor-rotate-shift-rotate).  One of the biggest advantages of using a Xo(ro)shiro class PRNG is its ability to use a \emph{jump polynomial}\cite{Shootout}:
 
-            \begin{itemize}
-                \item Sub nanosecond generation
-                \item A state space of only 256 bits
-                \item If you only need 64-bit floats, xoshiro256+ is 15\% faster with the same properties
-                \item A period of $2^{256} - 1$, and thus provides $2^{128}$ non-overlapping sequences of length $2^{128}$
-                \item \texttt{Xoroshiro128} family is the same speed in half the space
-                \item \texttt{Xoshiro128} family is 32 bits and thus applicable to be used on GPUs
-                \item Every n/64-tuple of consecutive 64-bit values appears exactly once in the output, except for the zero tuple (and this is the largest possible dimension).
-            \end{itemize}
-
-            While there are several advantages to this class, there is still at least one drawback: the lowest bits have linear complexity.  Because of this, the isolation of these bits will fail the MatrixRank and LinearComp tests\cite{LowComp, TestU01}.  That being said, since only the lowest bits have linear complexity, the effects will be insignificant when considered in the context of the whole generator\cite{LowComp}.
-
-            Because of these advantages, the Xo(ro)shiro class of PRNGs have been implented platforms such as javascript, rust, java, .net, erlang, FORTRAN, julia, lua, IoT (mbed and zephyr).
+            \begin{quote}
+                \textit{All generators, being based on linear recurrences, provide jump functions that make it possible to simulate any number of calls to the next-state function in constant time, once a suitable jump polynomial has been computed. We provide ready-made jump functions for a number of calls equal to the square root of the period, to make it easy generating non-overlapping sequences for parallel computations, and equal to the cube of the fourth root of the period, to make it possible to generate independent sequences on different parallel processors.}
+            \end{quote}
 
     \section*{Results}
 
-        \begin{itemize}
-            \item Show these algorithms in practice
-            \item Quality\cite{Shootout}: Compare xoshiro and relatives using BigCrush suite of tests\cite{TestU01} and\cite{HammingWeightDependencies}
-            \item Vectorization using AVX2 (Advanced Vector Extensions) vectorization\cite{Shootout}
-        \end{itemize}
+        While these are of great interest in a theoretical sense, we also must be diligent in considering their real-world implemnetation. Table \ref{tbl:comparisons} compares the step period, the time period per 64 bits, and the number of cycles per byte\cite{Shootout}.
+
+        \begin{table}[h]
+        \begin{center}
+        \begin{tabular}{c|c|c|c|c}
+            PRNG         & Footprint (bits) & Period          & ns/64 bits & cycles/B \\
+            \hline
+            xoshiro256+  & 256              & $2^{256} - 1$   & 0.61       & 0.27 \\
+            \hline
+            xoshiro256++ & 256              & $2^{256} - 1$   & 0.75       & 0.34 \\
+            \hline
+            xoshiro256** & 256              & $2^{256} - 1$   & 0.75       & 0.34 \\
+            \hline
+            MT19937-64   & 20032            & $2^{19937} - 1$ & 1.36       & 0.62 \\
+            \hline
+            SFMT19937    & 20032            & $2^{19937} - 1$ & 0.93       & 0.42 \\
+            \hline
+            TinyMT-64    & 256              & $2^{127} - 1$   & 2.76       & 1.25
+        \end{tabular}
+        \end{center}
+            \caption{\label{tbl:comparisons}Comparison of PRNG properties}
+        \end{table}
+
+        These algorithms have been tested and compared with the standard Big Crush suite\cite{TestU01} and a custom test for Hamming-weight dependencies\cite{HammingWeightDependencies}.  Additionally, we consider the footprint of each algorithm to determine its ``bang for the buck'' defined as\cite{Shootout}
+        \begin{quote}
+            \textit{a generator gives \textbf{``bang-for-the-buck''} if the base-2 logarithm of the period is close to the footprint.}
+        \end{quote}
 
     \section*{Discussion}
 
+        As the Lhemer PRNG, has been included here merely as historical interest, the interesting competition is thus only between the MersenneTwister and Xo(ro)shiro families of PRNGs.  Each of these competitive methods has been implemented on various platforms, some originally defaulting to Mersenne Twister and recently moved to Xoroshiro.
+
+        The \emph{Mersenne Twister} PRNG can be found as the default on many platforms, most notably of which are: Python\cite{Python}, Microsoft Excel\cite{Excel}, MATLAB\cite{MATLAB}, C++\cite{CppMT}, Mathematica\cite{Mathematica}, and CUDA\cite{CUDA}.  Likewise, due to its increases in popularity, the \emph{Xo(ro)shiro} class of PRNGs have been implented platforms such as javascript, rust, java, .net, erlang, FORTRAN, julia, lua, IoT (mbed and zephyr).
+
+        While both methods have been implemented in many cases as the default PRNG, each has its own set of advantages. The highlights of how Mersenne Twister leads the charge are:
+
         \begin{itemize}
-            \item Compare and contrast each of these algorithms
+            \item It passes most of the standard statistical benchmarks\cite{TestU01}.
+            \item It has a very long period; $2^{19937} - 1$ for the ``19937'' implementation used most.
+            \item It has a GPU implmentation\cite{MTGP}.
         \end{itemize}
 
+        Likewise, the Xoshiro family also comes with several advantages over its older competitors\cite{XoroshiroPaper, Shootout}:
+
+        \begin{itemize}
+            \item Sub nanosecond generation
+            \item A state space of only 256 bits
+            \item If you only need 64-bit floats, xoshiro256+ is 15\% faster with the same properties
+            \item A period of $2^{256} - 1$, and thus provides $2^{128}$ non-overlapping sequences of length $2^{128}$
+            \item \texttt{Xoroshiro128} family is the same speed in half the space
+            \item \texttt{Xoshiro128} family is 32 bits and thus applicable to be used on GPUs
+            \item Every $n/64$-tuple of consecutive 64-bit values appears exactly once in the output, except for the zero tuple (and this is the largest possible dimension).
+        \end{itemize}
+
+        While there are these advantages, Mersenne Twister based PRNGs still face some challenges when compared to some other methods.  These challenges include:
+
+        \begin{itemize}
+            \item A relatively large state buffer (the TinyMT variant addresses this problem\cite{TinyMT}).
+            \item A generation speed that is relatively slow compared to more modern algorithms (the SFMT variant addresses this problem\cite{SFMT}).
+            \item A linear complexity highlighted in both Crush and BigCrush\cite{TestU01}.
+            \item An ability to predict all future generations after observing a certain number; e.g. for MT19937, you only need to generate 624 before being able to predict.  This predictablility makes MT19937 unsuitable for cryptographic applications.  The CryptMT variant addresses this problem\cite{CryptMT}.
+        \end{itemize}
+
+        Much like Mersenne Twister, there is still at least one challenge the Xoshiro family faces: the lowest bits have linear complexity.  Because of this, the isolation of these bits will fail the MatrixRank and LinearComp tests\cite{LowComp, TestU01}.  That being said, since only the lowest bits have linear complexity, the effects will be insignificant when considered in the context of the whole generator\cite{LowComp}.
+
+\pagebreak
+
     \section*{Conclusion}
+
+        Due to its importance in scientiic computing and other applications, many psuedo-random number generators have been created and polished over the years.  Modern methods have moved away from ``mathematical'' generation, such as modular recurrences towards a more ``computational'' method, incorporating concepts such as recurring bit shifts.  These modern methods, such as the Mersenne Twister and Xo(ro)shiro classes of PRNGs, are able to provide incredible improvements in both speed of generation and quality, even for different hardware.  
+        
+        While there have been numerous varitations to Mersenne wister based algorithms to mitigate problems such as large state space requiring large amounts of memory, and speed of generation, Xo(ro)shiro based methods have been created that perform better than all their Mersenne counter-parts in every considered metric.  Because of this overall advantage, many substantial platforms such as  Javascript, Rust, Java, and Julia have have decided to make Xo(ro)shiro their default moving forward.
     
-    \newpage
     \printbibliography
 
 \end{document}
