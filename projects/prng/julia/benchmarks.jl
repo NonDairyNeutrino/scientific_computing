@@ -1,4 +1,6 @@
 module Benchmarks
+export schwefel, deJong1, rosenbrock, rastrigin, griewangk, sesw, svsw, ackley1, ackley2, eggHolder
+
 using LinearAlgebra
 
 function schwefel(x :: Vector{T}) where T <: Real
