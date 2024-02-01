@@ -3,6 +3,19 @@ export schwefel, deJong1, rosenbrock, rastrigin, griewangk, sesw, svsw, ackley1,
 
 using LinearAlgebra
 
+const benchmarkDomain = Dict(
+    :schwefel   => (-512, 512),
+    :deJong1    => (-100, 100),
+    :rosenbrock => (-100, 100),
+    :rastrigin  => (-30, 30),
+    :griewangk  => (-500, 500),
+    :sesw       => (-30, 30),
+    :svsw       => (-30, 30),
+    :ackley1    => (-32, 32),
+    :ackley2    => (-32, 32),
+    :eggHolder  => (-500, 500)
+)
+
 function schwefel(x :: Vector{T}) where T <: Real
     magicNumber = 418.9829
     return magicNumber * length(x) + dot(x, sin.(sqrt.(abs.(x))))
@@ -60,5 +73,7 @@ function eggHolder(x :: Vector{T}) where T <: Real
     term2 = dot(x[2:end] .+ 47, sin.(sqrt.(abs.(x[2:end] + 0.5 * x[1:end-1] .+ 47))))
     return -(term1 + term2)
 end
+
+const symbolToFunction = Dict(Symbol(foo) => foo for foo in [schwefel, deJong1, rosenbrock, rastrigin, griewangk, sesw, svsw, ackley1, ackley2, eggHolder])
 
 end
