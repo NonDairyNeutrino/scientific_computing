@@ -30,7 +30,7 @@ function main()
     # names() begins with the name of the package
     benchmarkSymbolVector = names(Benchmarks)[2:end]
 
-    for benchmarkSymbol in benchmarkSymbolVector# get benchmark and its domain
+    for benchmarkSymbol in benchmarkSymbolVector
         for prng in prngVector
             data  = @timed runExperiment(prng, benchmarkSymbol, nExperiments, dimension)
             stats = doStats(data.value)
