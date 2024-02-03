@@ -1,63 +1,44 @@
-# TODO: add empirical-gradient descent
 include("benchmarks.jl")
+include("generate.jl")
 include("stats.jl")
-using Random # standard library
-using .Benchmarks, .MyStats, Distributions # not in standard library
-
-matrixToVector(mat :: Matrix) = collect.(eachrow(mat))
-
-function benchmarkTimed(benchmark :: Function, x :: Vector) :: Vector
-    benchmarkTimeValue = @timed benchmark(x)
-    return [benchmarkTimeValue.time, benchmarkTimeValue.value]
+using .Benchmarks, .Generate, .MyStats
+#= General Idea
+1. Choose a benchmark and a prng (e.g. Xoshiro or MersenneTwister)
+2. Generate psuedo-random vectors (prv) in the domain of the benchmark
+3. Evaluate the benchmark on each of the prvs
+4. Do statistical analysis on the results
+=#
+function getParameters() :: Tuple{Int, Int}
+    print("Number of experiments: ")
+    nVectors  = parse(Int, readline())
+    print("Number of dimensions: ")
+    dimension = parse(Int, readline())
+    return nVectors, dimension
 end
 
-function benchmarkTimed(benchmark :: Function, x :: Vector{Vector}) :: Vector
-    benchmarkTimed.(benchmark, x)
-end
+function runExperiment(prng, benchmarkSymbol :: Symbol, nExperiments :: Int, dimension) :: Vector
+    benchmark   = Benchmarks.symbolToFunction[benchmarkSymbol]
+    domain      = Benchmarks.benchmarkDomain[benchmarkSymbol]
 
-function sampleDomain(prng, domainDistribution, nVectors :: Int, dimension :: Int) :: Vector{Vector}
-    return rand(prng, domainDistribution, nVectors, dimension) |> matrixToVector
-end
-
-function processBenchmark(benchmarkSymbol :: Symbol, nVectors :: Int, dimension :: Int, prngVector :: Vector; samplingDistribution = Uniform)
-    # get benchmark and its domain
-    benchmark = Benchmarks.symbolToFunction[benchmarkSymbol]
-    domain    = Benchmarks.benchmarkDomain[benchmarkSymbol]
-
-    # randomly sample the "dimension"-dimensional domain of the given benchmark nVectors times
-    domainDistribution = samplingDistribution(domain...)
-    # don't have to worry about which set goes with which prng because
-    # it will always be in the same order as prngVector
-    rngPoints = sampleDomain.(prngVector, domainDistribution, nVectors, dimension)
-
-    # pass the random vectors through the benchmark function
-    return benchmarkTimed.(benchmark, rngPoints)
+    pointVector = generatePoints(prng, domain, nExperiments, dimension)
+    imageVector = benchmark.(pointVector)
+    return imageVector
 end
 
 function main()
-    benchmarkSymbolVector = names(Benchmarks)[2:end] # names() begins with the name of the package
-    # instantiate prngs
-    rngVector = [Xoshiro(), MersenneTwister()]
-    # can go up to nVectors = 3*10^6, dimension = 30 with reasonable runtime
-    nVectors  = 2
-    dimension = 2
+    nExperiments, dimension = getParameters()
+    # names() begins with the name of the package
+    benchmarkSymbolVector = names(Benchmarks)[2:end]
 
-    #= Threads.@threads =# 
-    for benchmarkSymbol in benchmarkSymbolVector
-        # Benchmarks
-        println("Starting $(string(benchmarkSymbol)) on thread $(Threads.threadid())")
-        processedBenchmarks = processBenchmark(benchmarkSymbol, nVectors, dimension, rngVector)
-        display(processedBenchmarks)
-        println("Benchmark processing completed.")
-
-        # Statistics
-        # TODO: processedBenchmarks also gives timing; need to remove for stats on solutions
-        println("Starting statistical analysis...")
-        stats = doStats.(processedBenchmarks)
-        for (rng, stats) in zip(rngVector, stats)
-            println(rng, " : ", stats)
+    for benchmarkSymbol in benchmarkSymbolVector# get benchmark and its domain
+        for prng in prngVector
+            data  = @timed runExperiment(prng, benchmarkSymbol, nExperiments, dimension)
+            stats = doStats(data.value)
+            println(string(benchmarkSymbol), " - ", typeof(prng))
+            println("value stats: ", stats)
+            println("time  stats: ", data.time)
+            println("==========================")
         end
-        println("=======================================================================")
     end
 end
 
