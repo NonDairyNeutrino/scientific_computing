@@ -1,4 +1,3 @@
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-StaticCompiler = "81625895-6c0f-48fc-b932-11a18313743c"
