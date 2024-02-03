@@ -8,6 +8,6 @@ function doStats(v::Vector)
     stdDev = std(v)
     bounds = extrema(v)
     middle = median(v)
-    return (average = average, stdDev = stdDev, bounds = bounds, middle = middle)
+    return (average = average, stdDev = stdDev, bounds = bounds, median = middle)
 end
 end
