@@ -45,14 +45,6 @@ sorting=ynt
 
     \section{Methods}
 
-        \subsection{Language}
-
-            \subsubsection{Julia}
-
-            \subsubsection{C++}
-
-            \subsubsection{CUDA}
-
         \subsection{Pseudo-random Number Generation}
 
             \subsubsection{Xoshiro256++}
@@ -65,39 +57,37 @@ sorting=ynt
 
     \section{Results}
 
-        \subsection{Julia}
-
-            \begin{table}[h]
-            \begin{centering}
-                \begin{tabular}{|c||c|c|c|c|c|c|}
-                    \hline
-                                & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
-                    \hline
-                    \hline
-                    Ackley's One & 587.19 & 60.62 & 424.5 & 705.34 & 588.17 & 0.438 \\
-                    \hline
-                    Ackley's Two & 652.36 & 14.56 & 602.65 & 677.75 & 653.94 & 0.053 \\
-                    \hline
-                    1st De Jong's & 104726.64 & 14731.69 & 79401.66 & 136052.36 & 105329.46 & 0.022 \\
-                    \hline
-                    Egg Holder & -67.51 & 1564.88 & -3543.09 & 3168.68 & -199.16 & 0.119 \\
-                    \hline
-                    Griewangk & 635.73 & 129.05 & 354.25 & 841.71 & 663.16 & 0.065 \\
-                    \hline
-                    Rastrigin & $2.6 \times 10^{6}$ & 511998.81 & $1.6 \times 10^6$ & $2.9 \times 10^6$ & $2.5 \times 10^6$ & 0.025 \\
-                    \hline
-                    Rosenbrock & $5.5 \times 10^{10}$ & $1.5 \times 10^{10}$ & $2.6 \times 10^{10}$ & $8.2 \times 10^{10}$ & $5.6 \times 10^{10}$ & 0.055 \\
-                    \hline
-                    Schwefel's & 12265.91 & 898.52 & 10669.58 & 15107.91 & 12154.59 & 0.044 \\
-                    \hline
-                    SESW & -20.89 & 1.31 & -23.97 & -18.68 & -20.59 & 0.083 \\
-                    \hline
-                    SVSW & 94.07 & 7.9 & 77.61 & 122.17 & 93.86 & 0.081 \\
-                    \hline
-                \end{tabular}
-                \caption{Julia with Xoshiro256++}
-            \end{centering}
-            \end{table}
+        \begin{table}[h]
+        \begin{centering}
+            \begin{tabular}{|c||c|c|c|c|c|c|}
+                \hline
+                            & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
+                \hline
+                \hline
+                Ackley's One & 587.19 & 60.62 & 424.5 & 705.34 & 588.17 & 0.438 \\
+                \hline
+                Ackley's Two & 652.36 & 14.56 & 602.65 & 677.75 & 653.94 & 0.053 \\
+                \hline
+                1st De Jong's & 104726.64 & 14731.69 & 79401.66 & 136052.36 & 105329.46 & 0.022 \\
+                \hline
+                Egg Holder & -67.51 & 1564.88 & -3543.09 & 3168.68 & -199.16 & 0.119 \\
+                \hline
+                Griewangk & 635.73 & 129.05 & 354.25 & 841.71 & 663.16 & 0.065 \\
+                \hline
+                Rastrigin & $2.6 \times 10^{6}$ & 511998.81 & $1.6 \times 10^6$ & $2.9 \times 10^6$ & $2.5 \times 10^6$ & 0.025 \\
+                \hline
+                Rosenbrock & $5.5 \times 10^{10}$ & $1.5 \times 10^{10}$ & $2.6 \times 10^{10}$ & $8.2 \times 10^{10}$ & $5.6 \times 10^{10}$ & 0.055 \\
+                \hline
+                Schwefel's & 12265.91 & 898.52 & 10669.58 & 15107.91 & 12154.59 & 0.044 \\
+                \hline
+                SESW & -20.89 & 1.31 & -23.97 & -18.68 & -20.59 & 0.083 \\
+                \hline
+                SVSW & 94.07 & 7.9 & 77.61 & 122.17 & 93.86 & 0.081 \\
+                \hline
+            \end{tabular}
+            \caption{Julia with Xoshiro256++}
+        \end{centering}
+        \end{table}
 
     \section{Discussion}
         Compare empirical gradient to other standard methods in numerical optimization of geometric structures:
