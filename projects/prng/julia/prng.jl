@@ -16,12 +16,17 @@ function getParameters() :: Tuple{Int, Int}
     return nVectors, dimension
 end
 
+function benchmarkTimed(benchmark, point)
+    timed = @timed benchmark(point)
+    return [timed.time, timed.value]
+end
+
 function runExperiment(prng, benchmarkSymbol :: Symbol, nExperiments :: Int, dimension) :: Vector
     benchmark   = Benchmarks.symbolToFunction[benchmarkSymbol]
     domain      = Benchmarks.benchmarkDomain[benchmarkSymbol]
 
     pointVector = generatePoints(prng, domain, nExperiments, dimension)
-    imageVector = benchmark.(pointVector)
+    imageVector = benchmarkTimed.(benchmark, pointVector)
     return imageVector
 end
 
@@ -32,11 +37,14 @@ function main()
 
     for benchmarkSymbol in benchmarkSymbolVector
         for prng in prngVector
-            data  = @timed runExperiment(prng, benchmarkSymbol, nExperiments, dimension)
-            stats = doStats(data.value)
+            dataTimeMatrix = runExperiment(prng, benchmarkSymbol, nExperiments, dimension) |> stack
+            valueVector    = dataTimeMatrix[2, :]
+            timeVector     = dataTimeMatrix[1, :]
+            statsValue     = doStats(valueVector)
+            statsTime      = doStats(timeVector)
             println(string(benchmarkSymbol), " - ", typeof(prng))
-            println("value stats: ", stats)
-            println("time  stats: ", data.time)
+            println("value stats: ", statsValue)
+            println("time  stats: ", statsTime)
             println("==========================")
         end
     end
