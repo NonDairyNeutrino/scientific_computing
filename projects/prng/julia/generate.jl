@@ -25,7 +25,7 @@ julia> generatePoints(Xoshiro(), (-512, 512), 2, 2)
 function generatePoints(prng :: Union{Xoshiro, MersenneTwister}, domain :: Tuple{T, T}, nVectors :: Int, dimension :: Int; samplingDistribution = Uniform) where T <: Real
     domainDistribution = samplingDistribution(domain...)
     prnMatrix          = rand(prng, domainDistribution, nVectors, dimension)
-    pointVector        = collect.(eachcol(prnMatrix))
+    pointVector        = collect.(eachrow(prnMatrix))
     return pointVector
 end
 end
