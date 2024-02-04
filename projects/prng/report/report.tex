@@ -55,8 +55,10 @@ sorting=ynt
 
             \begin{table}[h]
             \begin{centering}
-                \begin{tabular}{c|c|c|c|c|c|c}
+                \begin{tabular}{|c||c|c|c|c|c|c|}
+                    \hline
                                 & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
+                    \hline
                     \hline
                     Ackley's One & 587.19 & 60.62 & 424.5 & 705.34 & 588.17 & 0.438 \\
                     \hline
@@ -77,6 +79,7 @@ sorting=ynt
                     SESW & -20.89 & 1.31 & -23.97 & -18.68 & -20.59 & 0.083 \\
                     \hline
                     SVSW & 94.07 & 7.9 & 77.61 & 122.17 & 93.86 & 0.081 \\
+                    \hline
                 \end{tabular}
                 \caption{Julia with Xoshiro256++}
             \end{centering}
