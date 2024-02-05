@@ -64,7 +64,78 @@ In CUDA specifically, the standard implementation is the ``Philox(4, 32, 10)", w
 
 
         \subsection{Benchmarks}
+The benchmark functions used in this report are as follows:
+\begin{enumerate}
+\item Ackley's One:
+    \begin{equation} \label{eq:ackley_one}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}\frac{1}{e^{0.2}}\sqrt{x_i^2+x_{i+1}^2}+3\left(cos\left(2x_i\right)+sin\left(2x_{i+1}\right)\right)
+    \end{aligned}
+    \end{equation}
 
+\item Ackley's Two:
+    \begin{equation} \label{eq:ackley_two}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}20+e-\frac{20}{e^{0.2\sqrt{\frac{x_i^2+x_{i+1}^2}{2}}}}-e^{0.5\left(cos\left(2\pi\cdot x_i\right) + cos\left(2\pi\cdot x_{i+1}\right)\right)}
+    \end{aligned}
+    \end{equation}
+
+\item 1st De Jong's:
+    \begin{equation} \label{eq:de_jong}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n}x_i^2
+    \end{aligned}
+    \end{equation}
+
+\item Egg Holder:
+    \begin{equation} \label{eq:egg}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}-x_i\cdot sin\left(\sqrt{\left|x_i-x_{i+1}-47\right|}\right) - \left(x_{i+1}+47\right)\cdot sin\left(\sqrt{\left|x_{i+1}+47+\frac{x_i}{2}\right|}\right)
+    \end{aligned}
+    \end{equation}
+
+\item Griewangk:
+    \begin{equation} \label{eq:griewangk}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n}\frac{x_i^2}{4000}-\prod_{i=1}^{n}cos\left(\frac{x_i}{\sqrt{i}}\right)
+    \end{aligned}
+    \end{equation}
+
+\item Rastrigin:
+    \begin{equation} \label{eq:rastrigin}
+    \begin{aligned}
+        f(x) &= 10\cdot n\cdot \sum_{i=1}^{n}\left(x_i^2-10\cdot cos\left(2\pi\cdot x_i\right)\right)
+    \end{aligned}
+    \end{equation}
+
+\item Rosenbrock's Saddle:
+    \begin{equation} \label{eq:rosenbrock}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}100\cdot\left(x_i^2-x_{i+1}\right)^2+\left(1-x_i\right)^2
+    \end{aligned}
+    \end{equation}
+
+\item Schwefel:
+    \begin{equation} \label{eq:schwefel}
+    \begin{aligned}
+        f(x) &= \left(418.9829\cdot n\right)-\sum_{i=1}^{n}-x_i\cdot sin\left(\sqrt{\left|x_i\right|}\right)
+    \end{aligned}
+    \end{equation}
+
+\item Sine Envelope Sine Wave:
+    \begin{equation} \label{eq:sesw}
+    \begin{aligned}
+        f(x) &= -\sum_{i=1}^{n-1}0.5+\frac{sin\left(x_i^2+x_{i+1}^2-0.5\right)^2}{\left(1+0.001\left(x_i^2+x_{i+1}^2\right)\right)^2}
+    \end{aligned}
+    \end{equation}
+
+\item Stretched V Sine Wave:
+    \begin{equation} \label{eq:svsw}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}\left(\sqrt[4]{x_i^2+x_{i+1}^2}\cdot sin\left(50\sqrt[10]{x_i^2+x_{i+1}^2}\right)^2+1\right)
+    \end{aligned}
+    \end{equation}
+\end{enumerate}
         \subsection{Empirical Gradient Descent}
 
             Gradient descent(eq. \ref{eq:gradient}, \ref{eq:descent}, \ref{eq:while_gradient})
