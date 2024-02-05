@@ -12,11 +12,8 @@
 \usepackage{graphicx, caption}
 \usepackage{hyperref}
 % BIBLIOGRAPHY
-\usepackage[
-backend=biber,
-sorting=ynt
-]{biblatex}
-\addbibresource{bib.bib}
+\usepackage{natbib}
+\bibliographystyle{unsrt}
 
 % =======TITLE=======
 \title{\vspace*{-0.625in}CS 565: Scientific Computing \\ Project 1: Random Search \& Empirical Gradient Descent\vspace*{-0.25in}}
@@ -27,6 +24,8 @@ sorting=ynt
 
     \maketitle
 
+\tableofcontents
+\pagebreak
     \section{Introduction}
 
         Optimization algorithms play a pivotal role in various fields, ranging from machine learning and artificial intelligence to engineering and finance. Mathematical optimization is often full of high-dimension, intractable problems. These problems have solution spaces that are very difficult, if not impossible, to visualize and work with using standard approaches.  Mathematical optimization problems also typically suffer from complex geometric solution spaces, full of plateaus, holes, and other features that make effective traversal difficult. Efficient and reliable algorithms have been created that navigate complex landscapes of these high-dimensional benchmark problem. 
@@ -43,6 +42,7 @@ sorting=ynt
 
         Through this study, we seek to devise a strategy of combining PRNGs and empirical gradient descent to navigate complex search spaces efficiently. This combined approach will improve the optimization algorithm convergence as well as the ability to find the global optima. This combined approach aims utilizes the best parts of both randomness and deterministic refinement in solving high-dimensional optimization problems.
 
+\pagebreak
     \section{Methods}
 
         \subsection{Pseudo-random Number Generation}
@@ -159,9 +159,10 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
 
             Because of this change in perspective, no vector norms need to be calculated, possibly leading to significant decreases in runtime.
 
+\pagebreak
     \section{Results}
 
-        \begin{table}[h]
+        \begin{table}[h!]
         \begin{centering}
             \begin{tabular}{|c||c|c|c|c|c|c|}
                 \hline
@@ -193,7 +194,7 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
         \end{centering}
         \end{table}
 
-	\begin{table}[h]
+	\begin{table}[h!]
         \begin{centering}
             \begin{tabular}{|c||c|c|c|c|c|c|}
                 \hline
@@ -225,7 +226,7 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
         \end{centering}
         \end{table}
 
-	\begin{table}[h]
+	\begin{table}[h!]
         \begin{centering}
             \begin{tabular}{|c||c|c|c|c|c|c|}
                 \hline
@@ -257,7 +258,7 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
         \end{centering}
         \end{table}
 
-	\begin{table}[h]
+	\begin{table}[h!]
         \begin{centering}
             \begin{tabular}{|c||c|c|c|c|c|c|}
                 \hline
@@ -289,7 +290,7 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
         \end{centering}
         \end{table}
 
-	\begin{table}[h]
+	\begin{table}[h!]
         \begin{centering}
             \begin{tabular}{|c||c|c|c||c|c|c||c|c|c|}
                 \hline
@@ -320,6 +321,7 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
             \caption{Comparing 30, 50000, and 1000000 Tests in CUDA using XORWow}
         \end{centering}
         \end{table}
+$ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ 
 \pagebreak
     \section{Discussion}
         Compare empirical gradient to other standard methods in numerical optimization of geometric structures:
@@ -337,7 +339,11 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
             \item Quantum annealing
             \item Hill climbing
         \end{itemize}
-
+\pagebreak
     \section{Conclusion}
+\pagebreak
+\nocite*{}
+\bibliography{references}
+
 
 \end{document}
