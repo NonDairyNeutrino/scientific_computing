@@ -89,165 +89,201 @@ In CUDA specifically, the standard implementation is the ``Philox(4, 32, 10)", w
 
     \section{Results}
 
+        \subsection{Random Search}
+
+            \begin{table}[h]
+            \begin{centering}
+                \begin{tabular}{|c||c|c|c|c|c|c|}
+                    \hline
+                                & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
+                    \hline
+                    \hline
+                    Ackley's One & 587.19 & 60.62 & 424.5 & 705.34 & 588.17 & 0.438 \\
+                    \hline
+                    Ackley's Two & 652.36 & 14.56 & 602.65 & 677.75 & 653.94 & 0.053 \\
+                    \hline
+                    1st De Jong's & 104726.64 & 14731.69 & 79401.66 & 136052.36 & 105329.46 & 0.022 \\
+                    \hline
+                    Egg Holder & -67.51 & 1564.88 & -3543.09 & 3168.68 & -199.16 & 0.119 \\
+                    \hline
+                    Griewangk & 635.73 & 129.05 & 354.25 & 841.71 & 663.16 & 0.065 \\
+                    \hline
+                    Rastrigin & $2.6 \times 10^{6}$ & 511998.81 & $1.6 \times 10^6$ & $2.9 \times 10^6$ & $2.5 \times 10^6$ & 0.025 \\
+                    \hline
+                    Rosenbrock & $5.5 \times 10^{10}$ & $1.5 \times 10^{10}$ & $2.6 \times 10^{10}$ & $8.2 \times 10^{10}$ & $5.6 \times 10^{10}$ & 0.055 \\
+                    \hline
+                    Schwefel's & 12265.91 & 898.52 & 10669.58 & 15107.91 & 12154.59 & 0.044 \\
+                    \hline
+                    SESW & -20.89 & 1.31 & -23.97 & -18.68 & -20.59 & 0.083 \\
+                    \hline
+                    SVSW & 94.07 & 7.9 & 77.61 & 122.17 & 93.86 & 0.081 \\
+                    \hline
+                \end{tabular}
+                \caption{Julia with Xoshiro256++}
+            \end{centering}
+            \end{table}
+
         \begin{table}[h]
-        \begin{centering}
-            \begin{tabular}{|c||c|c|c|c|c|c|}
-                \hline
-                            & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
-                \hline
-                \hline
-                Ackley's One & 587.19 & 60.62 & 424.5 & 705.34 & 588.17 & 0.438 \\
-                \hline
-                Ackley's Two & 652.36 & 14.56 & 602.65 & 677.75 & 653.94 & 0.053 \\
-                \hline
-                1st De Jong's & 104726.64 & 14731.69 & 79401.66 & 136052.36 & 105329.46 & 0.022 \\
-                \hline
-                Egg Holder & -67.51 & 1564.88 & -3543.09 & 3168.68 & -199.16 & 0.119 \\
-                \hline
-                Griewangk & 635.73 & 129.05 & 354.25 & 841.71 & 663.16 & 0.065 \\
-                \hline
-                Rastrigin & $2.6 \times 10^{6}$ & 511998.81 & $1.6 \times 10^6$ & $2.9 \times 10^6$ & $2.5 \times 10^6$ & 0.025 \\
-                \hline
-                Rosenbrock & $5.5 \times 10^{10}$ & $1.5 \times 10^{10}$ & $2.6 \times 10^{10}$ & $8.2 \times 10^{10}$ & $5.6 \times 10^{10}$ & 0.055 \\
-                \hline
-                Schwefel's & 12265.91 & 898.52 & 10669.58 & 15107.91 & 12154.59 & 0.044 \\
-                \hline
-                SESW & -20.89 & 1.31 & -23.97 & -18.68 & -20.59 & 0.083 \\
-                \hline
-                SVSW & 94.07 & 7.9 & 77.61 & 122.17 & 93.86 & 0.081 \\
-                \hline
-            \end{tabular}
-            \caption{Julia with Xoshiro256++}
-        \end{centering}
-        \end{table}
+            \begin{centering}
+                \begin{tabular}{|c||c|c|c|c|c|c|}
+                    \hline
+                                & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
+                    \hline
+                    \hline
+                    Ackley One & 583.12 & 58.6578 & 304.542 & 842.013 & 583.285 & 0.00845 \\
+                    \hline
+                    Ackley Two & 583.037 & 16.5308 & 462.064 & 627.577 & 585.359 & 0.03711 \\
+                    \hline
+                    De Jong 1 & 100140 & 16334.8 & 29912.4 & 176241 & 99688.7 & 0.00042163\\
+                    \hline
+                    Egg Holder & -106.642 & 1565.33 & -8759.94 & 7308.14 & -99.2367 & 0.00992 \\
+                    \hline
+                    Griewangk & 625.04 & 102.136 & 199.357 & 1125.12 & 622.969 & 0.00793 \\
+                    \hline
+                    Rastrigin & 2.69884e+06 & 441123 & 902980 & 5.22212e+06 & 2.69134e+06 & 0.00374 \\
+                    \hline
+                    Rosenbrock's & 5.79781e+10 & 1.43681e+10 & 9.46702e+09 & 1.36466e+11 & 5.73733e+10 & 0.02876\\
+                    \hline
+                    Schwefel & 12556.5 & 1069.19 & 6795.11 & 17630.6 & 12568.6 & 0.00472 \\
+                    \hline
+                    SESW & -21.1838 & 1.25719 & -28.2668 & -16.7156 & -21.1149 & 0.03290 \\
+                    \hline
+                    SVSW & 303499 & 11836.1 & 225942 & 336821 & 303329 & 0.04492 \\
+                    \hline
+                \end{tabular}
+                \caption{1000000 Experiments with CUDA using XORWow}
+            \end{centering}
+            \end{table}
 
-	\begin{table}[h]
-        \begin{centering}
-            \begin{tabular}{|c||c|c|c|c|c|c|}
-                \hline
-                            & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
-                \hline
-                \hline
-                Ackley One & 583.12 & 58.6578 & 304.542 & 842.013 & 583.285 & 0.00845 \\
-                \hline
-                Ackley Two & 583.037 & 16.5308 & 462.064 & 627.577 & 585.359 & 0.03711 \\
-                \hline
-                De Jong 1 & 100140 & 16334.8 & 29912.4 & 176241 & 99688.7 & 0.00042163\\
-                \hline
-                Egg Holder & -106.642 & 1565.33 & -8759.94 & 7308.14 & -99.2367 & 0.00992 \\
-                \hline
-                Griewangk & 625.04 & 102.136 & 199.357 & 1125.12 & 622.969 & 0.00793 \\
-                \hline
-                Rastrigin & 2.69884e+06 & 441123 & 902980 & 5.22212e+06 & 2.69134e+06 & 0.00374 \\
-                \hline
-                Rosenbrock's & 5.79781e+10 & 1.43681e+10 & 9.46702e+09 & 1.36466e+11 & 5.73733e+10 & 0.02876\\
-                \hline
-                Schwefel & 12556.5 & 1069.19 & 6795.11 & 17630.6 & 12568.6 & 0.00472 \\
-                \hline
-                SESW & -21.1838 & 1.25719 & -28.2668 & -16.7156 & -21.1149 & 0.03290 \\
-                \hline
-                SVSW & 303499 & 11836.1 & 225942 & 336821 & 303329 & 0.04492 \\
-                \hline
-            \end{tabular}
-            \caption{1000000 Experiments with CUDA using XORWow}
-        \end{centering}
-        \end{table}
+        \begin{table}[h]
+            \begin{centering}
+                \begin{tabular}{|c||c|c|c|c|c|c|}
+                    \hline
+                                & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
+                    \hline
+                    \hline
+                    Ackley One & 582.921 & 58.6353 & 308.961 & 843.791 & 583.149 & 0.00845 \\
+                    \hline
+                    Ackley Two & 583.059 & 16.5201 & 459.279 & 628.006 & 585.38 & 0.03711 \\
+                    \hline
+                    De Jong 1 & 100127 & 16334.8 & 30795.6 & 175801 & 99677.5 & 0.00042323\\
+                    \hline
+                    Egg Holder & -107.924 & 1563.63 & -7848.96 & 7437.9 & -102.868 & 0.00992 \\
+                    \hline
+                    Griewangk & 625.142 & 101.975 & 199.423 & 1121.05 & 623.185 & 0.00793 \\
+                    \hline
+                    Rastrigin & 2.69884e+06 & 441123 & 902980 & 5.22212e+06 & 2.69134e+06 & 0.00374 \\
+                    \hline
+                    Rosenbrock's & 5.79839e+10 & 1.43691e+10 & 9.19142e+09 & 1.34815e+11 & 5.73814e+10 & 0.02876 \\
+                    \hline
+                    Schwefel & 12559.7 & 1067.37 & 7388.06 & 17928.6 & 12570.3 & 0.00472\\
+                    \hline
+                    SESW & -21.1796 & 1.25551 & -28.1444 & -16.5571 & -21.1133 & 0.03290 \\
+                    \hline
+                    SVSW & 303499 & 11836.1 & 225942 & 336821 & 303329 & 0.04492 \\
+                    \hline
+                \end{tabular}
+                \caption{1000000 Experiments with CUDA using Mersenne Twister}
+            \end{centering}
+            \end{table}
 
-	\begin{table}[h]
-        \begin{centering}
-            \begin{tabular}{|c||c|c|c|c|c|c|}
-                \hline
-                            & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
-                \hline
-                \hline
-                Ackley One & 582.921 & 58.6353 & 308.961 & 843.791 & 583.149 & 0.00845 \\
-                \hline
-                Ackley Two & 583.059 & 16.5201 & 459.279 & 628.006 & 585.38 & 0.03711 \\
-                \hline
-                De Jong 1 & 100127 & 16334.8 & 30795.6 & 175801 & 99677.5 & 0.00042323\\
-                \hline
-                Egg Holder & -107.924 & 1563.63 & -7848.96 & 7437.9 & -102.868 & 0.00992 \\
-                \hline
-                Griewangk & 625.142 & 101.975 & 199.423 & 1121.05 & 623.185 & 0.00793 \\
-                \hline
-                Rastrigin & 2.69884e+06 & 441123 & 902980 & 5.22212e+06 & 2.69134e+06 & 0.00374 \\
-                \hline
-                Rosenbrock's & 5.79839e+10 & 1.43691e+10 & 9.19142e+09 & 1.34815e+11 & 5.73814e+10 & 0.02876 \\
-                \hline
-                Schwefel & 12559.7 & 1067.37 & 7388.06 & 17928.6 & 12570.3 & 0.00472\\
-                \hline
-                SESW & -21.1796 & 1.25551 & -28.1444 & -16.5571 & -21.1133 & 0.03290 \\
-                \hline
-                SVSW & 303499 & 11836.1 & 225942 & 336821 & 303329 & 0.04492 \\
-                \hline
-            \end{tabular}
-            \caption{1000000 Experiments with CUDA using Mersenne Twister}
-        \end{centering}
-        \end{table}
+        \begin{table}[h]
+            \begin{centering}
+                \begin{tabular}{|c||c|c|c|c|c|c|}
+                    \hline
+                                & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
+                    \hline
+                    \hline
+                    Ackley One & 583.075 & 58.607 & 304.909 & 829.551 & 583.199 & 0.00845 \\
+                    \hline
+                    Ackley Two & 583.097 & 16.5323 & 471.824 & 628.922 & 585.396 & 0.03711 \\
+                    \hline
+                    De Jong 1 & 100149 & 16344.2 & 32357.6 & 182461 & 99709 & 0.00042230\\
+                    \hline
+                    Egg Holder & -106.53 & 1565.91 & -8484.27 & 7582.61 & -99.0725 & 0.00992 \\
+                    \hline
+                    Griewangk & 625.134 & 102.023 & 205.271 & 1110.3 & 623.039 & 0.00793 \\
+                    \hline
+                    Rastrigin & 2.69884e+06 & 441123 & 902980 & 5.22212e+06 & 2.69134e+06 & 0.00374 \\
+                    \hline
+                    Rosenbrock's & 5.80077e+10 & 1.43466e+10 & 8.38982e+09 & 1.37005e+11 & 5.74165e+10 & 0.02876 \\
+                    \hline
+                    Schwefel & 12559.4 & 1068.21 & 7481.93 & 17714.3 & 12569.9 & 0.00472 \\
+                    \hline
+                    SESW & -21.1838 & 1.25621 & -27.9692 & -16.6082 & -21.115 & 0.03290\\
+                    \hline
+                    SVSW & 303516 & 11805.7 & 219669 & 336788 & 303327 & 0.04493\\
+                    \hline
+                \end{tabular}
+                \caption{1000000 Experiments with CUDA using Philox}
+            \end{centering}
+            \end{table}
 
-	\begin{table}[h]
-        \begin{centering}
-            \begin{tabular}{|c||c|c|c|c|c|c|}
-                \hline
-                            & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
-                \hline
-                \hline
-                Ackley One & 583.075 & 58.607 & 304.909 & 829.551 & 583.199 & 0.00845 \\
-                \hline
-                Ackley Two & 583.097 & 16.5323 & 471.824 & 628.922 & 585.396 & 0.03711 \\
-                \hline
-                De Jong 1 & 100149 & 16344.2 & 32357.6 & 182461 & 99709 & 0.00042230\\
-                \hline
-                Egg Holder & -106.53 & 1565.91 & -8484.27 & 7582.61 & -99.0725 & 0.00992 \\
-                \hline
-                Griewangk & 625.134 & 102.023 & 205.271 & 1110.3 & 623.039 & 0.00793 \\
-                \hline
-                Rastrigin & 2.69884e+06 & 441123 & 902980 & 5.22212e+06 & 2.69134e+06 & 0.00374 \\
-                \hline
-                Rosenbrock's & 5.80077e+10 & 1.43466e+10 & 8.38982e+09 & 1.37005e+11 & 5.74165e+10 & 0.02876 \\
-                \hline
-                Schwefel & 12559.4 & 1068.21 & 7481.93 & 17714.3 & 12569.9 & 0.00472 \\
-                \hline
-                SESW & -21.1838 & 1.25621 & -27.9692 & -16.6082 & -21.115 & 0.03290\\
-                \hline
-                SVSW & 303516 & 11805.7 & 219669 & 336788 & 303327 & 0.04493\\
-                \hline
-            \end{tabular}
-            \caption{1000000 Experiments with CUDA using Philox}
-        \end{centering}
-        \end{table}
+        \begin{table}[h]
+            \begin{centering}
+                \begin{tabular}{|c||c|c|c||c|c|c||c|c|c|}
+                    \hline
+                                & Average & Minimum & Time [s] & Average & Minimum & Time [s] & Average & Minimum & Time [s] \\
+                    \hline
+                    \hline
+                    Ackley One & 585.976 & 484.611 & 0.00067 & 582.114 & 335.513 & 0.00065 & 583.12 & 304.542 & 0.00845 \\ 
+                    \hline
+                    Ackley Two & 582.764 & 549.495 & 0.00288 & 583.354 & 468.481 & 0.00286 & 583.037 & 462.064 & 0.03711 \\
+                    \hline
+                    De Jong 1 & 94620.3 & 64505.6 & 0.00003 & 99822.7 & 39754.1 & 0.00003 & 100140 & 29912.4 & 0.00042\\
+                    \hline
+                    Egg Holder & 94.5769 & -4812.16 & 0.00076 & -103.618 & -6552.22 & 0.00076 & -106.642 & -8759.94 & 0.00992 \\
+                    \hline
+                    Griewangk & 662.552 & 504.55 & 0.0009 & 625.738 & 219.673 & 0.00065 & 625.04 & 199.357 & 0.00793 \\
+                    \hline
+                    Rastrigin & 2.63e+06 & 1.79e+06 & 0.00029 & 2.7e+06 & 894380 & 0.00029 & 2.69e+06 & 902980 & 0.00374 \\
+                    \hline
+                    Rosenbrock's & 5.98e+10 & 3.18e+10 & 0.00127 & 5.79e+10 & 1e+10 & 0.00222 & 5.79e+10 & 9.46e+09 & 0.02876\\
+                    \hline
+                    Schwefel & 12367.4 & 9750.19 & 0.00039 & 12563.7 & 8469.67 & 0.00036 & 12556.5 & 6795.11 & 0.00472 \\
+                    \hline
+                    SESW & -21.3494 & -23.4479 & 0.00253 & -21.1728 & -28.3343 & 0.00253 & -21.1838 & -28.2668 & 0.0329 \\
+                    \hline
+                    SVSW & 301685 & 269094 & 0.0035 & 302376 & 227596 & 0.00347 & 303499 & 225942 & 0.04492 \\
+                    \hline
+                \end{tabular}
+                \caption{Comparing 30, 50000, and 1000000 Tests in CUDA using XORWow}
+            \end{centering}
+            \end{table}
 
-	\begin{table}[h]
-        \begin{centering}
-            \begin{tabular}{|c||c|c|c||c|c|c||c|c|c|}
-                \hline
-                            & Average & Minimum & Time [s] & Average & Minimum & Time [s] & Average & Minimum & Time [s] \\
-                \hline
-                \hline
-                Ackley One & 585.976 & 484.611 & 0.00067 & 582.114 & 335.513 & 0.00065 & 583.12 & 304.542 & 0.00845 \\ 
-                \hline
-                Ackley Two & 582.764 & 549.495 & 0.00288 & 583.354 & 468.481 & 0.00286 & 583.037 & 462.064 & 0.03711 \\
-                \hline
-                De Jong 1 & 94620.3 & 64505.6 & 0.00003 & 99822.7 & 39754.1 & 0.00003 & 100140 & 29912.4 & 0.00042\\
-                \hline
-                Egg Holder & 94.5769 & -4812.16 & 0.00076 & -103.618 & -6552.22 & 0.00076 & -106.642 & -8759.94 & 0.00992 \\
-                \hline
-                Griewangk & 662.552 & 504.55 & 0.0009 & 625.738 & 219.673 & 0.00065 & 625.04 & 199.357 & 0.00793 \\
-                \hline
-                Rastrigin & 2.63e+06 & 1.79e+06 & 0.00029 & 2.7e+06 & 894380 & 0.00029 & 2.69e+06 & 902980 & 0.00374 \\
-                \hline
-                Rosenbrock's & 5.98e+10 & 3.18e+10 & 0.00127 & 5.79e+10 & 1e+10 & 0.00222 & 5.79e+10 & 9.46e+09 & 0.02876\\
-                \hline
-                Schwefel & 12367.4 & 9750.19 & 0.00039 & 12563.7 & 8469.67 & 0.00036 & 12556.5 & 6795.11 & 0.00472 \\
-                \hline
-                SESW & -21.3494 & -23.4479 & 0.00253 & -21.1728 & -28.3343 & 0.00253 & -21.1838 & -28.2668 & 0.0329 \\
-                \hline
-                SVSW & 301685 & 269094 & 0.0035 & 302376 & 227596 & 0.00347 & 303499 & 225942 & 0.04492 \\
-                \hline
-            \end{tabular}
-            \caption{Comparing 30, 50000, and 1000000 Tests in CUDA using XORWow}
-        \end{centering}
-        \end{table}
+        \subsection{Empirical Gradient Descent}
+
+            \begin{table}[h]
+                \begin{centering}
+                    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+                        \hline
+                        & Ackley 1 & Ackley 2 & De Jong 1 & Egg Holder & Griewangk \\
+                        \hline
+                        \hline
+                        Minimum & \\
+                        \hline
+                        Time    & \\
+                        \hline
+                    \end{tabular}
+                    \caption{Local optima with empirical gradient descent in Julia}
+            \end{centering}
+            \end{table}
+
+            \begin{table}[h]
+                \begin{centering}
+                    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+                        \hline
+                        & Rastrigin & Rosenbrock & Schwefel & SESW & SVSW \\
+                        \hline
+                        \hline
+                        Minimum & \\
+                        \hline
+                        Time    & \\
+                        \hline
+                    \end{tabular}
+                    \caption{Local optima with empirical gradient descent in Julia}
+            \end{centering}
+            \end{table}
 \pagebreak
     \section{Discussion}
         Compare empirical gradient to other standard methods in numerical optimization of geometric structures:
