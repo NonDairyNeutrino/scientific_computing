@@ -50,6 +50,10 @@ sorting=ynt
             \subsubsection{Xoshiro256++}
 
             \subsubsection{Mersenne Twister}
+            The Mersenne Twister is a very commonly used general purpose PRNG that introduces a long period, which was uncommon in other PRNGs around the time, which often suffered from having a short period. The Mersenne Twister algorithm has a period of $2^19937-1$. This makes the Mersenne Twister a very effective as a PRNG. Mersenne Twister is one of two PRNGs used in the IBM Statistical Package for the Social Sciences (SPSS), and is implemented in many different programming languages as a native or STL PRNG. While a long period doesn't necessarily equate to a high quality PRNG, the Mersenne Twister is also $k$-distributed to a 32-bit accuracy for every $1\leq k\leq623$. This algorithm is very fast, but it does require a state buffer to operate. The state buffer for the MT algorithm is quite large compared to other variants, so while it is quite fast and high quality, it does require more space to operate. On machines of sufficient size, this typically isn't a concern, but on smaller machines where memory is more limited, this could be unacceptable. One other drawback is that the MT can take a long time to generate output that passes various statistical randomness tests if the seed value isn't sufficiently random itself, so using operations like offsetting the start of the sequence can be beneficial. The Mersenne Twister is a very good standard PRNG, and as such, is implemented in many programming languages and software packages. We used the standard Mersenne Twister algorithm in both the Julia implementation and the CUDA implementation. 
+
+            \subsubsection{XORWow}
+            \subsubsection{Philox 32}
 
         \subsection{Benchmarks}
 
