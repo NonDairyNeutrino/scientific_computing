@@ -48,9 +48,7 @@
         \subsection{Pseudo-random Number Generation}
 
             \subsubsection{Xoshiro256++}
-Xoshiro256++ is fast and possesses high-quality statistics when generating random numbers. This is a generator that belongs to the family of XORShift generators. This generator uses hardware-based bit operations, as is standard in the XORShift family. It is designed to produce long and statistically valid sequences of numbers without the overhead required for recursion-based generators. The ``256" in its name means that there is a 256-bit internal state. Xoshiro256++ is part of the XORShift family, but it extends upon the speed and statistical properties found in simpler implementations. Because of the 256-bit internal state, it has a period of $2^{256}$, making it a longer period than most other XORShift like generators. 
-
-There is a predecessor of this generator, the Xoshiro256*, but this generator is stronger due to its combination of rotations and bitwise xorshift operations. The rotations as well as bitwise xor allows a much more random generation pattern compared to Xoshiro256*. Due to the hardware support for bitwise operations, this generator is incredibly fast. To get the most out of this generator, seeding the generator with a highly random initial state is necessary to avoid repetition and prediction.
+Xoshiro256++ is fast and possesses high-quality statistics when generating random numbers. This is a generator that belongs to the family of XORShift generators. This generator uses hardware-based bit operations, as is standard in the XORShift family. It is designed to produce long and statistically valid sequences of numbers without the overhead required for recursion-based generators. The ``256" in its name means that there is a 256-bit internal state. Xoshiro256++ is part of the XORShift family, but it extends upon the speed and statistical properties found in simpler implementations. Because of the 256-bit internal state, it has a period of $2^{256}$, making it a longer period than most other XORShift like generators. There is a predecessor of this generator, the Xoshiro256*, but this generator is stronger due to its combination of rotations and bitwise xorshift operations. The rotations as well as bitwise xor allows a much more random generation pattern compared to Xoshiro256*. Due to the hardware support for bitwise operations, this generator is incredibly fast. To get the most out of this generator, seeding the generator with a highly random initial state is necessary to avoid repetition and prediction.
 
 
             \subsubsection{Mersenne Twister} 
@@ -60,9 +58,7 @@ The Mersenne Twister is a very commonly used general purpose PRNG that introduce
 The XORWow algorithm is one of the standard PRNGs implemented in the CUDA library. It is part of the XORShift family of PRNGs and uses hardware level operations to achieve fast and efficient random number generation. CUDA uses XORWow as a standard implementation because it can be implemented to generate numbers in parallel, making full use of the GPU acceleration. XORWow repeatedly applies a bitwise XOR operation and a shift operation to its internal state, very similar to the basic XORShift, or more complex Xoshiro256, to produce a sequence of random numbers. Because of the parallel nature of this algorithm, different GPU threads can generate streams of random numbers independently, which allows an efficient utilization of the GPU when generating many random numbers. To ensure independence when generating numbers in parallel, each thread is initialized with a unique seed that relies on some combination of the block and thread IDs. This independence allows XORWow to produce random numbers with good statistical properties very quickly. Because of its many benefits, we used XORWow as one of the PRNGs in the CUDA implementation.
 
             \subsubsection{Philox}
-The Philox PRNG is another standard CUDA implemented cryptographic-grade PRNG capable of parallel processing and generation. The Philox algorithm works by using combinations of multiplication and bitwise operations which are well supported at the hardware level, and as such can generate random numbers concurrently across multiple threads. Like in XORWow, CUDA creates unique seeds from a combination of block and thread IDs to guarantee independence. Philox, as a cryptographic-grade PRNG, has excellent statistical properties alongside long periods and good uniformity. Philox can generate both 32-bit and 64-bit random numbers if desired, which allows us to generate numbers with more precision if necessary. A cryptographic-grade PRNG is generally considered unnecessary compared to other more common implementations, but when doing optimization with thousands or millions of input vectors, making sure that the quality, unpredictability, and lack of repetition is strong becomes crucial. With CUDA, we can effectively parallelize the generation of these numbers, negating a lot of the downside to using a more complex cryptographic PRNG. 
-
-In CUDA specifically, the standard implementation is the ``Philox(4, 32, 10)", which specifies some parameters used in the generator. The $32$ is representative of generating 32-bit numbers. Even though we could use 64-bit precision, the standard implementation is more than sufficient. The $4$ represents the amount of numbers Philox generates in each call, and the $10$ denotes the number of rounds in the Philox algorithm, where a round refers to the number of iterations Philox applies to each set of $4$ random numbers. A round consists of some mathematical operations, typically involving bitwise operations like the XORShift family, and modular arithmetic like recurrence based PRNGs. These operations are applied to the internal state of the PRNG, meaning that the Philox algorithm is applied 10 times to generate each set of $4$ 32-bit random numbers. This increases the overhead of the algorithm by a lot, but the tradeoff of computational efficiency is quality of the generated random numbers.
+The Philox PRNG is another standard CUDA implemented cryptographic-grade PRNG capable of parallel processing and generation. The Philox algorithm works by using combinations of multiplication and bitwise operations which are well supported at the hardware level, and as such can generate random numbers concurrently across multiple threads. Like in XORWow, CUDA creates unique seeds from a combination of block and thread IDs to guarantee independence. Philox, as a cryptographic-grade PRNG, has excellent statistical properties alongside long periods and good uniformity. Philox can generate both 32-bit and 64-bit random numbers if desired, which allows us to generate numbers with more precision if necessary. A cryptographic-grade PRNG is generally considered unnecessary compared to other more common implementations, but when doing optimization with thousands or millions of input vectors, making sure that the quality, unpredictability, and lack of repetition is strong becomes crucial. With CUDA, we can effectively parallelize the generation of these numbers, negating a lot of the downside to using a more complex cryptographic PRNG.  In CUDA specifically, the standard implementation is the ``Philox(4, 32, 10)", which specifies some parameters used in the generator. The $32$ is representative of generating 32-bit numbers. Even though we could use 64-bit precision, the standard implementation is more than sufficient. The $4$ represents the amount of numbers Philox generates in each call, and the $10$ denotes the number of rounds in the Philox algorithm, where a round refers to the number of iterations Philox applies to each set of $4$ random numbers. A round consists of some mathematical operations, typically involving bitwise operations like the XORShift family, and modular arithmetic like recurrence based PRNGs. These operations are applied to the internal state of the PRNG, meaning that the Philox algorithm is applied 10 times to generate each set of $4$ 32-bit random numbers. This increases the overhead of the algorithm by a lot, but the tradeoff of computational efficiency is quality of the generated random numbers.
 
 
         \subsection{Benchmarks}
@@ -149,7 +145,7 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
                 \label{eq:while_gradient} \text{\texttt{while} } \Omega &< ||\nabla f(x)||
             \end{align}
             
-            is a classical method in mathematical optimization because of its roots in calculus and intuitivity.  Gradient decsent has drawbacks when it comes to differentiability,  convexity, and curvature.  For example, the descent (\ref{eq:descent}) is updated as long as the size of the gradient is bigger than (eq \ref{eq:while_gradient}) zero ($\Omega = 0$) (or threshold when being done computationally $0 < \Omega \ll 1$).  As a first step to approximate the useful features of the gradient and mitigate these problems, the \emph{empirical} gradient varition can be used.  The key difference between these methods, is that instead of focusing on the size of the gradient vector (i.e. calculating its norm at every step until its close enough to zero) (eq. \ref{eq:while_gradient}), we focus solely on the change of the image of the function as (eq. \ref{eq:empirical_while})
+            is a classical method in mathematical optimization because of its roots in calculus and intuitivity.  Gradient decsent has drawbacks when it comes to differentiability,  convexity, and curvature.  For example, the descent (\ref{eq:descent}) is updated as long as the size of the gradient is bigger than (eq \ref{eq:while_gradient}) zero ($\Omega = 0$) (or threshold when being done computationally $0 < \Omega \ll 1$).  As a first step to approximate the useful features of the gradient and mitigate these problems, the \emph{empirical} gradient varition can be used.  The key difference between these methods, is that instead of focusing on the size of the gradient vector (i.e. calculating its norm at every step until its close enough to zero) (eq. \ref{eq:while_gradient}), we focus solely on the change of the image of the function as (eq. \ref{eq:empirical_while}), where $\hat{k}_i$ is the unit vector in the $i$-th dimension.
 
             \begin{align}
                 \label{eq:empirical_gradient} \nabla_e f(x) &= \left\{f\left(x + \delta \hat{k}_i\right) - f\left(x\right)\right\}_i \\
@@ -157,16 +153,15 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
                 \label{eq:empirical_while} \text{\texttt{while} } f(x_{n}) &< f(x_{n-1})
             \end{align}
 
-            where $\hat{k}_i$ is the unit vector in the $i$-th dimension.
-
             Because of this change in perspective, no vector norms need to be calculated, possibly leading to significant decreases in runtime.
 
 \pagebreak
     \section{Results}
 
         \subsection{Random Search}
-
-            \begin{table}[h]
+        \subsubsection{Julia Implementation}
+Below we can see the results of the Julia implementation of 30 solution vectors being generated through Xoshiro256++ and Mersenne Twister PRNGs. We found that on average both PRNGs had roughly the same performance on all 10 objective functions. Both found similar average results with slight variation on the ranges, but overall, both generators performed similarly well when generating the initial solutions. We can also see that the time for generating and solving 30 experiments was significantly longer on the \ref{eq:ackley_one} and \ref{eq:egg} benchmarking equations, most likely due to the complexity of calculating the computationally expensive trigonometric functions. Overall, both generators performed similarly and could generate relatively good initial solutions to all 10 functions.
+            \begin{table}[h!]
             \begin{centering}
                 \begin{tabular}{|c||c|c|c|c|c|c|}
                     \hline
@@ -198,7 +193,9 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
             \end{centering}
             \end{table}
 
-        \begin{table}[h]
+\subsubsection{CUDA Implementation}
+Below we can see the results of the CUDA implementation. The objective was to generate 30 initial solutions, but after implementing the code and utilizing the profiler, it became clear that 30 functions wasn't enough data to see how much improvement we could get out of using CUDA. We decided to generate 1,000,000 solutions instead, chosen rather arbitrarily as simply a big number. We ran the experiments with a thread pool of 1024 blocks per thread, and the test card was a RTX 3080ti, which has 80 SMs. To fully utilize the card, we went with a vector size that was arbitrarily larger than $80\cdot 1024 = 81,92$, which is where we settled on 1,000,000. We used the CuRAND implementations of the Mersenne Twister, the XORWow, and the Philox 32 generators. To get a comparison of how effective CUDA is at parallelizing this task, we also consider 30 solutions and 50,000 solutions later in this section. We found that on average all three PRNGs had roughly the same performance on all 10 objective functions. The average values for each of the generators on each of the functions was within one order of magnitude, where most functions performed on average almost the same. Some generators were able to find better minimum solutions than others, but it doesn't seem to correlate a generator to a type of function landscape. For example, the Philox generator found the best solution of the three generators on the \ref{eq:rosenbrock} function, but the difference in solutions to the same function from other generators was still within one standard deviation of the results gathered. This leads us to believe that all generators performed on average equally as well. Looking at the time of each function, all generators performed almost the same on each given function. For example, the \ref{eq:ackley_one} ran for 0.00845 s using all three generators. That is to be expected, because all the numbers were pre-generated using the three generators before the experimentation started. The CuRAND documentation recommends generating many numbers in bulk rather than generating individual numbers one at a time, so that we can take advantage of parallelization when generating our inputs. This is exactly what we implemented, so the time cost of each generator is negated in these experiments.
+        \begin{table}[h!]
             \begin{centering}
                 \begin{tabular}{|c||c|c|c|c|c|c|}
                     \hline
@@ -226,11 +223,11 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
                     SVSW & 303499 & 11836.1 & 225942 & 336821 & 303329 & 0.04492 \\
                     \hline
                 \end{tabular}
-                \caption{1000000 Experiments with CUDA using XORWow}
+                \caption{1,000,000 Experiments with CUDA using XORWow}
             \end{centering}
             \end{table}
 
-        \begin{table}[h]
+        \begin{table}[h!]
             \begin{centering}
                 \begin{tabular}{|c||c|c|c|c|c|c|}
                     \hline
@@ -258,11 +255,11 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
                     SVSW & 303499 & 11836.1 & 225942 & 336821 & 303329 & 0.04492 \\
                     \hline
                 \end{tabular}
-                \caption{1000000 Experiments with CUDA using Mersenne Twister}
+                \caption{1,000,000 Experiments with CUDA using Mersenne Twister}
             \end{centering}
             \end{table}
 
-        \begin{table}[h]
+        \begin{table}[h!]
             \begin{centering}
                 \begin{tabular}{|c||c|c|c|c|c|c|}
                     \hline
@@ -290,10 +287,11 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
                     SVSW & 303516 & 11805.7 & 219669 & 336788 & 303327 & 0.04493\\
                     \hline
                 \end{tabular}
-                \caption{1000000 Experiments with CUDA using Philox}
+                \caption{1,000,000 Experiments with CUDA using Philox}
             \end{centering}
             \end{table}
-
+$ $ \\
+Before we move on to the empirical gradient descent data, we also consider running the CUDA experimentation on varying input sizes. We considered 30 experiments, 50,000 experiments, and the 1,000,000 experiments shown above. The leftmost section of the following table shows the average, best solution, and execution time of the 30-experiment data, the middle section shows the 50,000 experiment results, and the right most column is the 1,000,000 experiment results. This table only considers the XORWow results, as the other generators exhibited similar patterns in all experiments.
         \begin{table}[h]
             \begin{centering}
                 \begin{tabular}{|c||c|c|c||c|c|c||c|c|c|}
@@ -322,13 +320,15 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
                     SVSW & 301685 & 269094 & 0.0035 & 302376 & 227596 & 0.00347 & 303499 & 225942 & 0.04492 \\
                     \hline
                 \end{tabular}
-                \caption{Comparing 30, 50000, and 1000000 Tests in CUDA using XORWow}
+                \caption{Comparing 30, 50,000, and 1,000,000 Tests in CUDA using XORWow}
             \end{centering}
             \end{table}
+$ $ \\ $ $ \\ 
+We can see from the above table that each of the objective functions have very similar average solutions, regardless of the number of experiments run. For example, the \ref{eq:sesw} function had averages that were all within 0.2 of one another. The one major outlier to this pattern is the \ref{eq:egg} function, where the average varies incredibly from the 30 experiments to the larger tests. It is expected that the larger test cases produce better minimum results, solely because the larger instances have more chances of getting lucky. We can see this is the case, since in every case, the 50,000 experiments found a lower solution compared to the 30 test cases, and the 1,000,000 experiments found a lower solution compared to all 50,000 test cases, except for the \ref{eq:rastrigin} and the very close tie in the \ref{eq:sesw}. However, the interesting point about comparing these different sized tests lies in the time difference. We can see that the 30 tests and 50,000 tests both ran in almost the same time per benchmark function. This logically makes sense, due to the architecture of the GPU used. Even running 50,000 experiments wasn't enough to fully maximize the hardware utilization, meaning that functionally the 30 experiments and 50,000 experiments both ran fully in parallel. The time of execution only changes when we exceed the hardware capabilities of true parallelization in the GPU, with the 1,000,000 test cases. However, even knowing that we are more than fully utilizing the hardware, the time to run 1,000,000 test cases was still on the order of single digit milliseconds, except for the \ref{eq:rosenbrock}, the \ref{eq:sesw}, and the \ref{eq:svsw}. These experiments took 10s of milliseconds to run. Comparing this with the Julia implementation of 30 experiments on the same functions, the CUDA implementation outperformed in all objective functions while taking fractions of the overall compute time. This isn't to say that the Julia implementation is slow or inherently bad, because Julia is a high-performance low level scientific computing language very similar in performance to C. The Julia implementation also took advantage of SIMD vector operations, instead of costly for loops, to compute the sums across 30 dimensions that each objective function requires. This comparison just shows the power of utilizing the massive parallelization capabilities of running code on a GPU verses a CPU. 
 
         \subsection{Empirical Gradient Descent}
 
-            \begin{table}[h]
+            \begin{table}[h!]
                 \begin{centering}
                     \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
                         \hline
@@ -359,6 +359,7 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
                     \caption{Local optima with empirical gradient descent in Julia}
             \end{centering}
             \end{table}
+$ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ 
 \pagebreak
     \section{Discussion}
         Compare empirical gradient to other standard methods in numerical optimization of geometric structures:
