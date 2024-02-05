@@ -67,11 +67,23 @@ In CUDA specifically, the standard implementation is the ``Philox(4, 32, 10)", w
 
         \subsection{Empirical Gradient Descent}
 
-            \begin{equation}
-                \nabla f(\vec{x}) = \left\{f\left(\vec{x} + \delta \hat{k}_i\right) - f\left(\vec{x}\right)\right\}_i,
-            \end{equation}
+            Gradient descent(eq. \ref{eq:gradient}, \ref{eq:descent}, \ref{eq:while_gradient})
+            
+            \begin{align}
+                \label{eq:gradient} \nabla f(x) &= \left\{ \frac{\partial f}{\partial x_1}, \frac{\partial f}{\partial x_2}, \ldots\right\} \\
+                \label{eq:descent} x &\leftarrow x - \alpha \nabla f(x) \\
+                \label{eq:while_gradient} \Omega &< ||\nabla f(x)||
+            \end{align}
+            
+            is a classical method in mathematical optimization because of its roots in calculus and intuitivity.  Gradient decsent has drawbacks when it comes to differentiability,  convexity, and curvature.  For example, the descent (\ref{eq:descent}) is updated as long as the size of the gradient is bigger than (eq \ref{eq:while_gradient}) zero ($\Omega = 0$) (or threshold when being done computationally $0 < \Omega \ll 1$).  As a first step to approximate the useful features of the gradient and mitigate these problems, the \emph{empirical} gradient varition can be used.  The key difference between these methods, is that instead of focusing on the size of the gradient vector (i.e. calculating its norm at every step until its close enough to zero) (eq. \ref{eq:while_gradient}), we focus solely on the change of the image of the function as (eq. \ref{eq:empirical_while})
 
-            where $\hat{k}_i$ is the unit vector in the $i$-th dimension
+            \begin{align}
+                \label{eq:empirical_gradient} \nabla_e f(x) &= \left\{f\left(x + \delta \hat{k}_i\right) - f\left(x\right)\right\}_i \\
+                \label{empirical_descent} x_{n} &\leftarrow x_{n-1} - \delta \nabla_e f(x_{n-1}) \\
+                \label{eq:empirical_while} f(x_{n}) &< f(x_{n-1})
+            \end{align}
+
+            where $\hat{k}_i$ is the unit vector in the $i$-th dimension.
 
     \section{Results}
 
