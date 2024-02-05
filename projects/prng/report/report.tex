@@ -12,11 +12,8 @@
 \usepackage{graphicx, caption}
 \usepackage{hyperref}
 % BIBLIOGRAPHY
-\usepackage[
-backend=biber,
-sorting=ynt
-]{biblatex}
-\addbibresource{bib.bib}
+\usepackage{natbib}
+\bibliographystyle{unsrt}
 
 % =======TITLE=======
 \title{\vspace*{-0.625in}CS 565: Scientific Computing \\ Project 1: Random Search \& Empirical Gradient Descent\vspace*{-0.25in}}
@@ -27,6 +24,8 @@ sorting=ynt
 
     \maketitle
 
+\tableofcontents
+\pagebreak
     \section{Introduction}
 
         Optimization algorithms play a pivotal role in various fields, ranging from machine learning and artificial intelligence to engineering and finance. Mathematical optimization is often full of high-dimension, intractable problems. These problems have solution spaces that are very difficult, if not impossible, to visualize and work with using standard approaches.  Mathematical optimization problems also typically suffer from complex geometric solution spaces, full of plateaus, holes, and other features that make effective traversal difficult. Efficient and reliable algorithms have been created that navigate complex landscapes of these high-dimensional benchmark problem. 
@@ -43,6 +42,7 @@ sorting=ynt
 
         Through this study, we seek to devise a strategy of combining PRNGs and empirical gradient descent to navigate complex search spaces efficiently. This combined approach will improve the optimization algorithm convergence as well as the ability to find the global optima. This combined approach aims utilizes the best parts of both randomness and deterministic refinement in solving high-dimensional optimization problems.
 
+\pagebreak
     \section{Methods}
 
         \subsection{Pseudo-random Number Generation}
@@ -64,7 +64,79 @@ In CUDA specifically, the standard implementation is the ``Philox(4, 32, 10)", w
 
 
         \subsection{Benchmarks}
+The benchmark functions used in this report are as follows:
+\begin{enumerate}
+\item Ackley's One:
+    \begin{equation} \label{eq:ackley_one} \tag{Ackley's One}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}\frac{1}{e^{0.2}}\sqrt{x_i^2+x_{i+1}^2}+3\left(cos\left(2x_i\right)+sin\left(2x_{i+1}\right)\right)
+    \end{aligned}
+    \end{equation}
 
+\item Ackley's Two:
+    \begin{equation} \label{eq:ackley_two} \tag{Ackley's Two}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}20+e-\frac{20}{e^{0.2\sqrt{\frac{x_i^2+x_{i+1}^2}{2}}}}-e^{0.5\left(cos\left(2\pi\cdot x_i\right) + cos\left(2\pi\cdot x_{i+1}\right)\right)}
+    \end{aligned}
+    \end{equation}
+
+\item 1st De Jong's:
+    \begin{equation} \label{eq:de_jong} \tag{1st De Jong's}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n}x_i^2
+    \end{aligned}
+    \end{equation}
+
+\item Egg Holder:
+    \begin{equation} \label{eq:egg} \tag{Egg Holder}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}-x_i\cdot sin\left(\sqrt{\left|x_i-x_{i+1}-47\right|}\right) - \left(x_{i+1}+47\right)\cdot sin\left(\sqrt{\left|x_{i+1}+47+\frac{x_i}{2}\right|}\right)
+    \end{aligned}
+    \end{equation}
+
+\item Griewangk:
+    \begin{equation} \label{eq:griewangk} \tag{Griewangk}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n}\frac{x_i^2}{4000}-\prod_{i=1}^{n}cos\left(\frac{x_i}{\sqrt{i}}\right)
+    \end{aligned}
+    \end{equation}
+
+\item Rastrigin:
+    \begin{equation} \label{eq:rastrigin} \tag{Rastrigin}
+    \begin{aligned}
+        f(x) &= 10\cdot n\cdot \sum_{i=1}^{n}\left(x_i^2-10\cdot cos\left(2\pi\cdot x_i\right)\right)
+    \end{aligned}
+    \end{equation}
+
+\item Rosenbrock's Saddle:
+    \begin{equation} \label{eq:rosenbrock} \tag{Rosenbrock's Saddle}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}100\cdot\left(x_i^2-x_{i+1}\right)^2+\left(1-x_i\right)^2
+    \end{aligned}
+    \end{equation}
+
+\item Schwefel:
+    \begin{equation} \label{eq:schwefel} \tag{Schwefel}
+    \begin{aligned}
+        f(x) &= \left(418.9829\cdot n\right)-\sum_{i=1}^{n}-x_i\cdot sin\left(\sqrt{\left|x_i\right|}\right)
+    \end{aligned}
+    \end{equation}
+
+\item Sine Envelope Sine Wave:
+    \begin{equation} \label{eq:sesw} \tag{Sine Envelope Sine Wave}
+    \begin{aligned}
+        f(x) &= -\sum_{i=1}^{n-1}0.5+\frac{sin\left(x_i^2+x_{i+1}^2-0.5\right)^2}{\left(1+0.001\left(x_i^2+x_{i+1}^2\right)\right)^2}
+    \end{aligned}
+    \end{equation}
+
+\item Stretched V Sine Wave:
+    \begin{equation} \label{eq:svsw} \tag{Stretched V Sine Wave}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}\left(\sqrt[4]{x_i^2+x_{i+1}^2}\cdot sin\left(50\sqrt[10]{x_i^2+x_{i+1}^2}\right)^2+1\right)
+    \end{aligned}
+    \end{equation}
+\end{enumerate}
+Each of these benchmark functions pose different fitness landscapes. The \ref{eq:de_jong}, for example, is very convex, with one global minimum and no local minium. Other equations, such as \ref{eq:ackley_one}, \ref{eq:ackley_two}, and \ref{eq:schwefel} have very intense landscapes with many local minima in the form of $n$-dimensional holes, where finding the global optimum requires an algorithm capable of traversing these wildly varied landscapes. Functions such as \ref{eq:sesw} and \ref{eq:svsw} have many local minima in a repeating fashion, with undulating walls formed by the various trigonometric functions. Traversing these diverse solution landscapes with an efficient algorithm is critical to finding the global optimum for each of these functions. Additionally, these functions are very complex and time intensive to compute, especially the functions that make heavy use of trigonometric functions. These functions are geometrically varied and computationally expensive to compute, making traversal very difficult.
         \subsection{Empirical Gradient Descent}
 
             Gradient descent(eq. \ref{eq:gradient}, \ref{eq:descent}, \ref{eq:while_gradient})
@@ -87,6 +159,7 @@ In CUDA specifically, the standard implementation is the ``Philox(4, 32, 10)", w
 
             Because of this change in perspective, no vector norms need to be calculated, possibly leading to significant decreases in runtime.
 
+\pagebreak
     \section{Results}
 
         \subsection{Random Search}
@@ -301,7 +374,11 @@ In CUDA specifically, the standard implementation is the ``Philox(4, 32, 10)", w
             \item Quantum annealing
             \item Hill climbing
         \end{itemize}
-
+\pagebreak
     \section{Conclusion}
+\pagebreak
+\nocite*{}
+\bibliography{references}
+
 
 \end{document}
