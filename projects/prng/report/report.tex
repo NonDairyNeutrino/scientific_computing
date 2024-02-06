@@ -327,7 +327,7 @@ $ $ \\ $ $ \\
 We can see from the above table that each of the objective functions have very similar average solutions, regardless of the number of experiments run. For example, the \ref{eq:sesw} function had averages that were all within 0.2 of one another. The one major outlier to this pattern is the \ref{eq:egg} function, where the average varies incredibly from the 30 experiments to the larger tests. It is expected that the larger test cases produce better minimum results, solely because the larger instances have more chances of getting lucky. We can see this is the case, since in every case, the 50,000 experiments found a lower solution compared to the 30 test cases, and the 1,000,000 experiments found a lower solution compared to all 50,000 test cases, except for the \ref{eq:rastrigin} and the very close tie in the \ref{eq:sesw}. However, the interesting point about comparing these different sized tests lies in the time difference. We can see that the 30 tests and 50,000 tests both ran in almost the same time per benchmark function. This logically makes sense, due to the architecture of the GPU used. Even running 50,000 experiments wasn't enough to fully maximize the hardware utilization, meaning that functionally the 30 experiments and 50,000 experiments both ran fully in parallel. The time of execution only changes when we exceed the hardware capabilities of true parallelization in the GPU, with the 1,000,000 test cases. However, even knowing that we are more than fully utilizing the hardware, the time to run 1,000,000 test cases was still on the order of single digit milliseconds, except for the \ref{eq:rosenbrock}, the \ref{eq:sesw}, and the \ref{eq:svsw}. These experiments took 10s of milliseconds to run. Comparing this with the Julia implementation of 30 experiments on the same functions, the CUDA implementation outperformed in all objective functions while taking fractions of the overall compute time. This isn't to say that the Julia implementation is slow or inherently bad, because Julia is a high-performance low level scientific computing language very similar in performance to C. The Julia implementation also took advantage of SIMD vector operations, instead of costly for loops, to compute the sums across 30 dimensions that each objective function requires. This comparison just shows the power of utilizing the massive parallelization capabilities of running code on a GPU verses a CPU. 
 
         \subsection{Empirical Gradient Descent}
-
+Below we can see the results of the empirical gradient descent method being used on the best solution generated for each objective function. This section only covers the Julia implementation of the gradient descent method, because unfortunately due to time constraints the CUDA implementation couldn’t be finished. As such, the results shown below only contain the two generators we used in the Julia implementation. We used a step size of $0.001$ when running these experiments. 
             \begin{table}[h!]
                 \begin{centering}
                     \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
@@ -359,7 +359,8 @@ We can see from the above table that each of the objective functions have very s
                     \caption{Local optima with empirical gradient descent in Julia}
             \end{centering}
             \end{table}
-$ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ 
+$ $ \\
+We can see from the tables above that the empirical gradient descent method was able to produce a minimum solution that was better than the Julia random search algorithms in all cases except for the \ref{eq:rosenbrock} function. This could be possibly due to some error in the algorithm not stopping in time. Additionally, the empirical gradient descent method was only slightly better in the \ref{eq:ackley_two} benchmark, likely due to the extremely varied solution space that equation represents. When comparing the empirical gradient descent to simply generating 1,000,000 solutions in CUDA, we found that the empirical gradient descent generated an improved solution in all benchmark equations except for \ref{eq:ackley_one}, \ref{eq:ackley_two}, and \ref{eq:rosenbrock}, where CUDA RNG outperformed. Because of the extreme nature of the solution spaces in those equations in particular, these results make sense. Empirical gradient descent has no way of getting out of local holes when searching for the global optimum, and since these three equations specifically have many local minima, randomly generating many points simply has a higher probability of landing in a better hole.
 \pagebreak
     \section{Discussion}
         Compare empirical gradient to other standard methods in numerical optimization of geometric structures:
@@ -377,6 +378,46 @@ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $ \\ $ $
             \item Quantum annealing
             \item Hill climbing
         \end{itemize}
+We have found, as shown above by the results section, that empirical gradient descent is better in most cases than randomly generating many initial starting solutions, even in the cases where we can generate millions of solutions in minimal time. However, we have also seen that empirical gradient descent is not perfect, and in fact only got within less than 1 step size of the global optima in the \ref{eq:de_jong} function. This function is unimodal, so the gradient descent is quite effective, but on functions that are multimodal the gradient descent struggled, not even beating randomly generating many solutions in some cases. Empirical gradient descent is not the only method in numerical optimization of geometric structures. We can give a structured overview of some of the common numerical optimization techniques.
+
+\begin{enumerate}
+\item Empirical Gradient Descent
+    \begin{enumerate}
+        \item \textbf{Overview:} Empirical gradient descent iteratively moves towards the minimum of the objective function. It achieves this by systematically adjusting each of the parameters in the solution vector in the direction of the negative gradient. This method is cheaper than the standard gradient descent because we don't need to calculate partial derivatives.
+        \item \textbf{Pros:} This method is simple and easy to implement, and it is a good baseline for numerical optimization.
+        \item \textbf{Cons:} This method is very sensitive to step size. We saw this in the \ref{eq:de_jong} function, because we found a solution that was less than 1 step away from the true global minimum. This method is also very prone to getting stuck in holes in the cases where we have multimodal functions. 
+    \end{enumerate}
+\item Conjugate Gradient
+    \begin{enumerate}
+        \item \textbf{Overview:} The conjugate gradient method is similar to the empirical gradient method, except it works best on large-scale unconstrained optimization problems.
+        \item \textbf{Pros:} This method is capable of faster convergence on quadratic functions when compared with standard gradient descent.
+        \item \textbf{Cons:} This method is not suited well for non-quadratic functions and isn't applicable when there are constraints. 
+    \end{enumerate}
+\item Stochastic Gradient Descent
+    \begin{enumerate}
+        \item \textbf{Overview:} Stochastic gradient descent builds on standard gradient descent, except it uses a random portion of the full data to improve upon in each iteration.
+        \item \textbf{Pros:} This method is well suited for large problems and is capable of escaping local minima due to the stochasticity involved in improving portions of the input at a time.
+        \item \textbf{Cons:} This method requires a lot of tuning of learning rates. Because of the stochasticity, the hyperparameters of the method greatly impact the convergence abilities.
+    \end{enumerate}
+\item Gauss-Newton
+    \begin{enumerate}
+        \item \textbf{Overview:} The Gauss-Newton 
+        \item \textbf{Pros:}
+        \item \textbf{Cons:}
+    \end{enumerate}
+\item
+    \begin{enumerate}
+        \item \textbf{Overview:}
+        \item \textbf{Pros:}
+        \item \textbf{Cons:}
+    \end{enumerate}
+\item
+    \begin{enumerate}
+        \item \textbf{Overview:}
+        \item \textbf{Pros:}
+        \item \textbf{Cons:}
+    \end{enumerate}
+\end{enumerate}
 \pagebreak
     \section{Conclusion}
 \pagebreak
