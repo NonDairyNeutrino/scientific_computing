@@ -193,6 +193,38 @@ Below we can see the results of the Julia implementation of 30 solution vectors 
             \end{centering}
             \end{table}
 
+            \begin{table}[h!]
+                \begin{centering}
+                    \begin{tabular}{|c||c|c|c|c|c|c|}
+                        \hline
+                                    & Average & Standard Deviation & Minimum & Maximum & Median & Average Time [ms] \\
+                        \hline
+                        \hline
+                        Ackley's One & 585.0  & 67.2               & 447.0   & 689.0   & 585.0  & 0.228 \\
+                        \hline
+                        Ackley's Two & 585.0  & 67.2               & 447.0   & 689.0   & 585.0  & 0.316 \\
+                        \hline
+                        1st De Jong's & 100000.0 & 15400.0         & 72600.0 & 127000.0 & 101000.0 & 0.019 \\
+                        \hline
+                        Egg Holder    & -278.0   & 1610.0          & -3650.0 & 3580.0   & -410.0   & 0.506 \\
+                        \hline
+                        Griewangk     & 615.0    & 115.0           & 418.0   & 888.0    & 616.0    & 0.123 \\
+                        \hline
+                        Rastrigin     & 2.63e6   & 471000.0        & 1.77e6  & 4.05e6   & 2.56e6   & 0.257 \\
+                        \hline
+                        Rosenbrock    & 5.35e10  & 1.66e10         & 2.7e10  & 9.98e10  & 5.06e10  & 0.085\\
+                        \hline
+                        Schwefel's    & 12300.0  & 937.0           & 10500.0 & 14200.0  & 12300.0  & 0.075 \\
+                        \hline
+                        SESW          & -21.1    & 1.28            & -23.6   & -18.4    & -21.1    & 0.369\\
+                        \hline
+                        SVSW          & 99.1     & 8.38            & 84.6    & 117.0    & 99.2     & 0.326 \\
+                        \hline
+                    \end{tabular}
+                    \caption{Julia with Mersenne Twister 19937}
+                \end{centering}
+                \end{table}
+
 \subsubsection{CUDA Implementation}
 Below we can see the results of the CUDA implementation. The objective was to generate 30 initial solutions, but after implementing the code and utilizing the profiler, it became clear that 30 functions wasn't enough data to see how much improvement we could get out of using CUDA. We decided to generate 1,000,000 solutions instead, chosen rather arbitrarily as simply a big number. We ran the experiments with a thread pool of 1024 blocks per thread, and the test card was a RTX 3080ti, which has 80 SMs. To fully utilize the card, we went with a vector size that was arbitrarily larger than $80\cdot 1024 = 81,92$, which is where we settled on 1,000,000. We used the CuRAND implementations of the Mersenne Twister, the XORWow, and the Philox 32 generators. To get a comparison of how effective CUDA is at parallelizing this task, we also consider 30 solutions and 50,000 solutions later in this section. We found that on average all three PRNGs had roughly the same performance on all 10 objective functions. The average values for each of the generators on each of the functions was within one order of magnitude, where most functions performed on average almost the same. Some generators were able to find better minimum solutions than others, but it doesn't seem to correlate a generator to a type of function landscape. For example, the Philox generator found the best solution of the three generators on the \ref{eq:rosenbrock} function, but the difference in solutions to the same function from other generators was still within one standard deviation of the results gathered. This leads us to believe that all generators performed on average equally as well. Looking at the time of each function, all generators performed almost the same on each given function. For example, the \ref{eq:ackley_one} ran for 0.00845 s using all three generators. That is to be expected, because all the numbers were pre-generated using the three generators before the experimentation started. The CuRAND documentation recommends generating many numbers in bulk rather than generating individual numbers one at a time, so that we can take advantage of parallelization when generating our inputs. This is exactly what we implemented, so the time cost of each generator is negated in these experiments.
         \begin{table}[h!]
