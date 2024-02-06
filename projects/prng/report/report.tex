@@ -160,7 +160,7 @@ Each of these benchmark functions pose different fitness landscapes. The \ref{eq
 
         \subsection{Random Search}
         \subsubsection{Julia Implementation}
-Below we can see the results of the Julia implementation of 30 solution vectors being generated through Xoshiro256++ and Mersenne Twister PRNGs. We found that on average both PRNGs had roughly the same performance on all 10 objective functions. Both found similar average results with slight variation on the ranges, but overall, both generators performed similarly well when generating the initial solutions. We can also see that the time for generating and solving 30 experiments was significantly longer on the \ref{eq:ackley_one} and \ref{eq:egg} benchmarking equations, most likely due to the complexity of calculating the computationally expensive trigonometric functions. Overall, both generators performed similarly and could generate relatively good initial solutions to all 10 functions.
+Below we can see the results of the Julia implementation of 30 solution vectors being generated through Xoshiro256++ and Mersenne Twister PRNGs. We found that on average both PRNGs had roughly the same performance on all 10 objective functions. Both found similar average results with slight variation on the ranges, but overall, both generators performed similarly well when generating the initial solutions. We can also see that the time for generating and solving 30 experiments was significantly longer on the \ref{eq:ackley_one} and \ref{eq:egg} benchmarking equations, most likely due to the complexity of calculating the computationally expensive trigonometric functions. Overall, both generators performed similarly and could generate relatively good initial solutions to all 10 functions.  Note: times shown in tables 1 and 2 differ in that those in table 1 is the time it took to compute all experiments for the benchmark and those in table 2 are the average time per experiment for the benchmark.
             \begin{table}[h!]
             \begin{centering}
                 \begin{tabular}{|c||c|c|c|c|c|c|}
@@ -193,7 +193,7 @@ Below we can see the results of the Julia implementation of 30 solution vectors 
             \end{centering}
             \end{table}
 
-            \begin{table}[h!]
+            \begin{table}[h!] \label{tbl:julia_mersenne}
                 \begin{centering}
                     \begin{tabular}{|c||c|c|c|c|c|c|}
                         \hline
