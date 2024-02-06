@@ -363,21 +363,6 @@ $ $ \\
 We can see from the tables above that the empirical gradient descent method was able to produce a minimum solution that was better than the Julia random search algorithms in all cases except for the \ref{eq:rosenbrock} function. This could be possibly due to some error in the algorithm not stopping in time. Additionally, the empirical gradient descent method was only slightly better in the \ref{eq:ackley_two} benchmark, likely due to the extremely varied solution space that equation represents. When comparing the empirical gradient descent to simply generating 1,000,000 solutions in CUDA, we found that the empirical gradient descent generated an improved solution in all benchmark equations except for \ref{eq:ackley_one}, \ref{eq:ackley_two}, and \ref{eq:rosenbrock}, where CUDA RNG outperformed. Because of the extreme nature of the solution spaces in those equations in particular, these results make sense. Empirical gradient descent has no way of getting out of local holes when searching for the global optimum, and since these three equations specifically have many local minima, randomly generating many points simply has a higher probability of landing in a better hole.
 \pagebreak
     \section{Discussion}
-        Compare empirical gradient to other standard methods in numerical optimization of geometric structures:
-        \begin{itemize}
-            \item Barzilai-Borwein method
-            \item Wolfe conditions and Line search
-            \item Conjugate gradient method
-            \item Proximal gradient method
-            \item Stochastic gradient descent
-            \item Mirror descent
-            \item Broyden–Fletcher–Goldfarb–Shanno algorithm
-            \item Davidon–Fletcher–Powell formula
-            \item Nelder–Mead method
-            \item Gauss–Newton algorithm
-            \item Quantum annealing
-            \item Hill climbing
-        \end{itemize}
 We have found, as shown above by the results section, that empirical gradient descent is better in most cases than randomly generating many initial starting solutions, even in the cases where we can generate millions of solutions in minimal time. However, we have also seen that empirical gradient descent is not perfect, and in fact only got within less than 1 step size of the global optima in the \ref{eq:de_jong} function. This function is unimodal, so the gradient descent is quite effective, but on functions that are multimodal the gradient descent struggled, not even beating randomly generating many solutions in some cases. Empirical gradient descent is not the only method in numerical optimization of geometric structures. We can give a structured overview of some of the common numerical optimization techniques.
 
 \begin{enumerate}
@@ -401,25 +386,27 @@ We have found, as shown above by the results section, that empirical gradient de
     \end{enumerate}
 \item Gauss-Newton
     \begin{enumerate}
-        \item \textbf{Overview:} The Gauss-Newton 
-        \item \textbf{Pros:}
-        \item \textbf{Cons:}
+        \item \textbf{Overview:} The Gauss-Newton method is highly effective at solving non-linear least squares optimization problems. 
+        \item \textbf{Pros:} In addition to being very well suited for least squares objective functions, this method is also capable of handling non-linearities in the objective function. 
+        \item \textbf{Cons:} This method is sensitive to initial guesses, meaning that it can suffer from the same issues as empirical gradient descent. Finding a good initial starting point is critical to success in this method. 
     \end{enumerate}
-\item
+\item Quantum Annealing
     \begin{enumerate}
-        \item \textbf{Overview:}
-        \item \textbf{Pros:}
-        \item \textbf{Cons:}
+        \item \textbf{Overview:} Quantum annealing uses quantum mechanics theory to explore solution spaces to complex objective functions. 
+        \item \textbf{Pros:} This method can potentially exponentially speed up the runtime compared to standard gradient descent based methods, making it highly attractive for complex problems where gradient descent takes a long time. This method is also capable of exploring multiple solutions simultaneously, once again posing as a viable alternative to multimodal problems with many local minima. 
+        \item \textbf{Cons:} This method requires special hardware known as quantum annealers. The most well-known quantum annealer is the D-Wave quantum annealer. Quantum computers are not known for their obtainability and widespread use, so finding hardware capable of performing these operations could be tricky. 
     \end{enumerate}
-\item
+\item Hill Climbing
     \begin{enumerate}
-        \item \textbf{Overview:}
-        \item \textbf{Pros:}
-        \item \textbf{Cons:}
+        \item \textbf{Overview:} Hill climbing method is a local search algorithm that continues to move in the direction of an increasing elevation in the search space. This is very similar to the empirical gradient descent method, just moving in the opposite direction. This could be combined with a gradient descent method to climb out of local minima but descent down from local maxima. 
+        \item \textbf{Pros:} Like the empirical gradient descent, this function is very similar in approach, and is simple and intuitive from an algorithm perspective.
+        \item \textbf{Cons:} This can get stuck in local maxima just like gradient descent methods getting stuck in local minima, and as such it does not guarantee finding the global maxima. 
     \end{enumerate}
 \end{enumerate}
+There are many optimization algorithms for numerical optimization of geometric spaces, and the choice ultimately comes down to the type of problem or specific characteristics involved that we want to optimize. Oftentimes, combining multiple algorithms or adjusting parameters dynamically while optimizing could be more effective than using a single static algorithm.
 \pagebreak
     \section{Conclusion}
+We have looked at applying four different PRNGs to ten classic numerical optimization benchmark functions. We experimented on generating 30 random solutions, then using empirical gradient descent to improve upon the best one. We also considered generating many more initial random solutions using the massively parallel capabilities of GPU computing. Overall, we found that the quality of the PRNG and the quality of the randomly generated solutions were vital to finding the global minimum in these benchmark equations. We also found that empirical gradient descent is not perfect, especially when it comes to multimodal objective functions, and other more complex algorithms are often necessary to avoid getting stuck in local optima. In the future, we would like to extend upon this project by implementing empirical gradient descent in CUDA, to see if we can leverage the massive parallelization of GPU computing to perform gradient descent on many solutions concurrently. We would also like to implement a dynamic step size approach to the empirical gradient descent, where the step size starts out large and progressively changes when more optimal values stop being found. By combining a shrinking step size, we can more finely find the bottom of a hole, while increasing the step size when a hole is found could potentially help to break out of the local minima. An adaptive step size for the empirical gradient descent running on a GPU would make for interesting future work. 
 \pagebreak
 \nocite*{}
 \bibliography{references}
