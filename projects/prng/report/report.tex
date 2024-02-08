@@ -12,11 +12,8 @@
 \usepackage{graphicx, caption}
 \usepackage{hyperref}
 % BIBLIOGRAPHY
-\usepackage[
-backend=biber,
-sorting=ynt
-]{biblatex}
-\addbibresource{bib.bib}
+\usepackage{natbib}
+\bibliographystyle{unsrt}
 
 % =======TITLE=======
 \title{\vspace*{-0.625in}CS 565: Scientific Computing \\ Project 1: Random Search \& Empirical Gradient Descent\vspace*{-0.25in}}
@@ -27,6 +24,8 @@ sorting=ynt
 
     \maketitle
 
+\tableofcontents
+\pagebreak
     \section{Introduction}
 
         Optimization algorithms play a pivotal role in various fields, ranging from machine learning and artificial intelligence to engineering and finance. Mathematical optimization is often full of high-dimension, intractable problems. These problems have solution spaces that are very difficult, if not impossible, to visualize and work with using standard approaches.  Mathematical optimization problems also typically suffer from complex geometric solution spaces, full of plateaus, holes, and other features that make effective traversal difficult. Efficient and reliable algorithms have been created that navigate complex landscapes of these high-dimensional benchmark problem. 
@@ -43,203 +42,406 @@ sorting=ynt
 
         Through this study, we seek to devise a strategy of combining PRNGs and empirical gradient descent to navigate complex search spaces efficiently. This combined approach will improve the optimization algorithm convergence as well as the ability to find the global optima. This combined approach aims utilizes the best parts of both randomness and deterministic refinement in solving high-dimensional optimization problems.
 
+\pagebreak
     \section{Methods}
 
         \subsection{Pseudo-random Number Generation}
 
             \subsubsection{Xoshiro256++}
+Xoshiro256++ is fast and possesses high-quality statistics when generating random numbers. This is a generator that belongs to the family of XORShift generators. This generator uses hardware-based bit operations, as is standard in the XORShift family. It is designed to produce long and statistically valid sequences of numbers without the overhead required for recursion-based generators. The ``256" in its name means that there is a 256-bit internal state. Xoshiro256++ is part of the XORShift family, but it extends upon the speed and statistical properties found in simpler implementations. Because of the 256-bit internal state, it has a period of $2^{256}$, making it a longer period than most other XORShift like generators. There is a predecessor of this generator, the Xoshiro256*, but this generator is stronger due to its combination of rotations and bitwise xorshift operations. The rotations as well as bitwise xor allows a much more random generation pattern compared to Xoshiro256*. Due to the hardware support for bitwise operations, this generator is incredibly fast. To get the most out of this generator, seeding the generator with a highly random initial state is necessary to avoid repetition and prediction.
 
-            \subsubsection{Mersenne Twister}
+
+            \subsubsection{Mersenne Twister} 
+The Mersenne Twister is a very commonly used general purpose PRNG that introduces a long period, which was uncommon in other PRNGs around the time, which often suffered from having a short period. The Mersenne Twister algorithm has a period of $2^{19937}-1$. This makes the Mersenne Twister a very effective as a PRNG. Mersenne Twister is one of two PRNGs used in the IBM Statistical Package for the Social Sciences (SPSS) and is implemented in many different programming languages as a native or STL PRNG. While a long period doesn't necessarily equate to a high quality PRNG, the Mersenne Twister is also $k$-distributed to a 32-bit accuracy for every $1\leq k\leq623$. This algorithm is very fast, but it does require a state buffer to operate. The state buffer for the MT algorithm is quite large compared to other variants, so while it is quite fast and high quality, it does require more space to operate. On machines of sufficient size, this typically isn't a concern, but on smaller machines where memory is more limited, this could be unacceptable. One other drawback is that the MT can take a long time to generate output that passes various statistical randomness tests if the seed value isn't sufficiently random itself, so using operations like offsetting the start of the sequence can be beneficial. The Mersenne Twister is a very good standard PRNG, and as such, is implemented in many programming languages and software packages. We used the standard Mersenne Twister algorithm in both the Julia implementation and the CUDA implementation.
+
+            \subsubsection{XORWow}
+The XORWow algorithm is one of the standard PRNGs implemented in the CUDA library. It is part of the XORShift family of PRNGs and uses hardware level operations to achieve fast and efficient random number generation. CUDA uses XORWow as a standard implementation because it can be implemented to generate numbers in parallel, making full use of the GPU acceleration. XORWow repeatedly applies a bitwise XOR operation and a shift operation to its internal state, very similar to the basic XORShift, or more complex Xoshiro256, to produce a sequence of random numbers. Because of the parallel nature of this algorithm, different GPU threads can generate streams of random numbers independently, which allows an efficient utilization of the GPU when generating many random numbers. To ensure independence when generating numbers in parallel, each thread is initialized with a unique seed that relies on some combination of the block and thread IDs. This independence allows XORWow to produce random numbers with good statistical properties very quickly. Because of its many benefits, we used XORWow as one of the PRNGs in the CUDA implementation.
+
+            \subsubsection{Philox}
+The Philox PRNG is another standard CUDA implemented cryptographic-grade PRNG capable of parallel processing and generation. The Philox algorithm works by using combinations of multiplication and bitwise operations which are well supported at the hardware level, and as such can generate random numbers concurrently across multiple threads. Like in XORWow, CUDA creates unique seeds from a combination of block and thread IDs to guarantee independence. Philox, as a cryptographic-grade PRNG, has excellent statistical properties alongside long periods and good uniformity. Philox can generate both 32-bit and 64-bit random numbers if desired, which allows us to generate numbers with more precision if necessary. A cryptographic-grade PRNG is generally considered unnecessary compared to other more common implementations, but when doing optimization with thousands or millions of input vectors, making sure that the quality, unpredictability, and lack of repetition is strong becomes crucial. With CUDA, we can effectively parallelize the generation of these numbers, negating a lot of the downside to using a more complex cryptographic PRNG.  In CUDA specifically, the standard implementation is the ``Philox(4, 32, 10)", which specifies some parameters used in the generator. The $32$ is representative of generating 32-bit numbers. Even though we could use 64-bit precision, the standard implementation is more than sufficient. The $4$ represents the amount of numbers Philox generates in each call, and the $10$ denotes the number of rounds in the Philox algorithm, where a round refers to the number of iterations Philox applies to each set of $4$ random numbers. A round consists of some mathematical operations, typically involving bitwise operations like the XORShift family, and modular arithmetic like recurrence based PRNGs. These operations are applied to the internal state of the PRNG, meaning that the Philox algorithm is applied 10 times to generate each set of $4$ 32-bit random numbers. This increases the overhead of the algorithm by a lot, but the tradeoff of computational efficiency is quality of the generated random numbers.
+
 
         \subsection{Benchmarks}
+The benchmark functions used in this report are as follows:
+\begin{enumerate}
+\item Ackley's One:
+    \begin{equation} \label{eq:ackley_one} \tag{Ackley's One}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}\frac{1}{e^{0.2}}\sqrt{x_i^2+x_{i+1}^2}+3\left(cos\left(2x_i\right)+sin\left(2x_{i+1}\right)\right)
+    \end{aligned}
+    \end{equation}
 
+\item Ackley's Two:
+    \begin{equation} \label{eq:ackley_two} \tag{Ackley's Two}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}20+e-\frac{20}{e^{0.2\sqrt{\frac{x_i^2+x_{i+1}^2}{2}}}}-e^{0.5\left(cos\left(2\pi\cdot x_i\right) + cos\left(2\pi\cdot x_{i+1}\right)\right)}
+    \end{aligned}
+    \end{equation}
+
+\item 1st De Jong's:
+    \begin{equation} \label{eq:de_jong} \tag{1st De Jong's}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n}x_i^2
+    \end{aligned}
+    \end{equation}
+
+\item Egg Holder:
+    \begin{equation} \label{eq:egg} \tag{Egg Holder}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}-x_i\cdot sin\left(\sqrt{\left|x_i-x_{i+1}-47\right|}\right) - \left(x_{i+1}+47\right)\cdot sin\left(\sqrt{\left|x_{i+1}+47+\frac{x_i}{2}\right|}\right)
+    \end{aligned}
+    \end{equation}
+
+\item Griewangk:
+    \begin{equation} \label{eq:griewangk} \tag{Griewangk}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n}\frac{x_i^2}{4000}-\prod_{i=1}^{n}cos\left(\frac{x_i}{\sqrt{i}}\right)
+    \end{aligned}
+    \end{equation}
+
+\item Rastrigin:
+    \begin{equation} \label{eq:rastrigin} \tag{Rastrigin}
+    \begin{aligned}
+        f(x) &= 10\cdot n\cdot \sum_{i=1}^{n}\left(x_i^2-10\cdot cos\left(2\pi\cdot x_i\right)\right)
+    \end{aligned}
+    \end{equation}
+
+\item Rosenbrock's Saddle:
+    \begin{equation} \label{eq:rosenbrock} \tag{Rosenbrock's Saddle}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}100\cdot\left(x_i^2-x_{i+1}\right)^2+\left(1-x_i\right)^2
+    \end{aligned}
+    \end{equation}
+
+\item Schwefel:
+    \begin{equation} \label{eq:schwefel} \tag{Schwefel}
+    \begin{aligned}
+        f(x) &= \left(418.9829\cdot n\right)-\sum_{i=1}^{n}-x_i\cdot sin\left(\sqrt{\left|x_i\right|}\right)
+    \end{aligned}
+    \end{equation}
+
+\item Sine Envelope Sine Wave:
+    \begin{equation} \label{eq:sesw} \tag{Sine Envelope Sine Wave}
+    \begin{aligned}
+        f(x) &= -\sum_{i=1}^{n-1}0.5+\frac{sin\left(x_i^2+x_{i+1}^2-0.5\right)^2}{\left(1+0.001\left(x_i^2+x_{i+1}^2\right)\right)^2}
+    \end{aligned}
+    \end{equation}
+
+\item Stretched V Sine Wave:
+    \begin{equation} \label{eq:svsw} \tag{Stretched V Sine Wave}
+    \begin{aligned}
+        f(x) &= \sum_{i=1}^{n-1}\left(\sqrt[4]{x_i^2+x_{i+1}^2}\cdot sin\left(50\sqrt[10]{x_i^2+x_{i+1}^2}\right)^2+1\right)
+    \end{aligned}
+    \end{equation}
+\end{enumerate}
+Each of these benchmark functions pose different fitness landscapes. The \ref{eq:de_jong}, for example, is very convex, with one global minimum and no local minium. Other equations, such as \ref{eq:ackley_one}, \ref{eq:ackley_two}, and \ref{eq:schwefel} have very intense landscapes with many local minima in the form of $n$-dimensional holes, where finding the global optimum requires an algorithm capable of traversing these wildly varied landscapes. Functions such as \ref{eq:sesw} and \ref{eq:svsw} have many local minima in a repeating fashion, with undulating walls formed by the various trigonometric functions. Traversing these diverse solution landscapes with an efficient algorithm is critical to finding the global optimum for each of these functions. Additionally, these functions are very complex and time intensive to compute, especially the functions that make heavy use of trigonometric functions. These functions are geometrically varied and computationally expensive to compute, making traversal very difficult.
         \subsection{Empirical Gradient Descent}
 
-            \begin{equation}
-                \nabla f(\vec{x}) = \left\{f\left(\vec{x} + \delta \hat{k}_i\right) - f\left(\vec{x}\right)\right\}_i,
-            \end{equation}
+            Gradient descent(eq. \ref{eq:gradient}, \ref{eq:descent}, \ref{eq:while_gradient})
+            
+            \begin{align}
+                \label{eq:gradient} \nabla f(x) &= \left\{ \frac{\partial f}{\partial x_1}, \frac{\partial f}{\partial x_2}, \ldots\right\} \\
+                \label{eq:descent} x &\leftarrow x - \alpha \nabla f(x) \\
+                \label{eq:while_gradient} \text{\texttt{while} } \Omega &< ||\nabla f(x)||
+            \end{align}
+            
+            is a classical method in mathematical optimization because of its roots in calculus and intuitivity.  Gradient decsent has drawbacks when it comes to differentiability,  convexity, and curvature.  For example, the descent (\ref{eq:descent}) is updated as long as the size of the gradient is bigger than (eq \ref{eq:while_gradient}) zero ($\Omega = 0$) (or threshold when being done computationally $0 < \Omega \ll 1$).  As a first step to approximate the useful features of the gradient and mitigate these problems, the \emph{empirical} gradient varition can be used.  The key difference between these methods, is that instead of focusing on the size of the gradient vector (i.e. calculating its norm at every step until its close enough to zero) (eq. \ref{eq:while_gradient}), we focus solely on the change of the image of the function as (eq. \ref{eq:empirical_while}), where $\hat{k}_i$ is the unit vector in the $i$-th dimension.
 
-            where $\hat{k}_i$ is the unit vector in the $i$-th dimension
+            \begin{align}
+                \label{eq:empirical_gradient} \nabla_e f(x) &= \left\{f\left(x + \delta \hat{k}_i\right) - f\left(x\right)\right\}_i \\
+                \label{empirical_descent} x_{n} &\leftarrow x_{n-1} - \delta \nabla_e f(x_{n-1}) \\
+                \label{eq:empirical_while} \text{\texttt{while} } f(x_{n}) &< f(x_{n-1})
+            \end{align}
 
+            Because of this change in perspective, no vector norms need to be calculated, possibly leading to significant decreases in runtime.
+
+\pagebreak
     \section{Results}
 
+        \subsection{Random Search}
+        \subsubsection{Julia Implementation}
+Below we can see the results of the Julia implementation of 30 solution vectors being generated through Xoshiro256++ and Mersenne Twister PRNGs. We found that on average both PRNGs had roughly the same performance on all 10 objective functions. Both found similar average results with slight variation on the ranges, but overall, both generators performed similarly well when generating the initial solutions. We can also see that the time for generating and solving 30 experiments was significantly longer on the \ref{eq:ackley_one} and \ref{eq:egg} benchmarking equations, most likely due to the complexity of calculating the computationally expensive trigonometric functions. Overall, both generators performed similarly and could generate relatively good initial solutions to all 10 functions.  Note: times shown in tables 1 and 2 differ in that those in table 1 is the time it took to compute all experiments for the benchmark and those in table 2 are the average time per experiment for the benchmark.
+            \begin{table}[h!]
+            \begin{centering}
+                \begin{tabular}{|c||c|c|c|c|c|c|}
+                    \hline
+                                & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
+                    \hline
+                    \hline
+                    Ackley's One & 587.19 & 60.62 & 424.5 & 705.34 & 588.17 & 0.438 \\
+                    \hline
+                    Ackley's Two & 652.36 & 14.56 & 602.65 & 677.75 & 653.94 & 0.053 \\
+                    \hline
+                    1st De Jong's & 104726.64 & 14731.69 & 79401.66 & 136052.36 & 105329.46 & 0.022 \\
+                    \hline
+                    Egg Holder & -67.51 & 1564.88 & -3543.09 & 3168.68 & -199.16 & 0.119 \\
+                    \hline
+                    Griewangk & 635.73 & 129.05 & 354.25 & 841.71 & 663.16 & 0.065 \\
+                    \hline
+                    Rastrigin & $2.6 \times 10^{6}$ & 511998.81 & $1.6 \times 10^6$ & $2.9 \times 10^6$ & $2.5 \times 10^6$ & 0.025 \\
+                    \hline
+                    Rosenbrock & $5.5 \times 10^{10}$ & $1.5 \times 10^{10}$ & $2.6 \times 10^{10}$ & $8.2 \times 10^{10}$ & $5.6 \times 10^{10}$ & 0.055 \\
+                    \hline
+                    Schwefel's & 12265.91 & 898.52 & 10669.58 & 15107.91 & 12154.59 & 0.044 \\
+                    \hline
+                    SESW & -20.89 & 1.31 & -23.97 & -18.68 & -20.59 & 0.083 \\
+                    \hline
+                    SVSW & 94.07 & 7.9 & 77.61 & 122.17 & 93.86 & 0.081 \\
+                    \hline
+                \end{tabular}
+                \caption{Julia with Xoshiro256++}
+            \end{centering}
+            \end{table}
+
+            \begin{table}[h!] \label{tbl:julia_mersenne}
+                \begin{centering}
+                    \begin{tabular}{|c||c|c|c|c|c|c|}
+                        \hline
+                                    & Average & Standard Deviation & Minimum & Maximum & Median & Average Time [ms] \\
+                        \hline
+                        \hline
+                        Ackley's One & 585.0  & 67.2               & 447.0   & 689.0   & 585.0  & 0.228 \\
+                        \hline
+                        Ackley's Two & 585.0  & 67.2               & 447.0   & 689.0   & 585.0  & 0.316 \\
+                        \hline
+                        1st De Jong's & 100000.0 & 15400.0         & 72600.0 & 127000.0 & 101000.0 & 0.019 \\
+                        \hline
+                        Egg Holder    & -278.0   & 1610.0          & -3650.0 & 3580.0   & -410.0   & 0.506 \\
+                        \hline
+                        Griewangk     & 615.0    & 115.0           & 418.0   & 888.0    & 616.0    & 0.123 \\
+                        \hline
+                        Rastrigin     & 2.63e6   & 471000.0        & 1.77e6  & 4.05e6   & 2.56e6   & 0.257 \\
+                        \hline
+                        Rosenbrock    & 5.35e10  & 1.66e10         & 2.7e10  & 9.98e10  & 5.06e10  & 0.085\\
+                        \hline
+                        Schwefel's    & 12300.0  & 937.0           & 10500.0 & 14200.0  & 12300.0  & 0.075 \\
+                        \hline
+                        SESW          & -21.1    & 1.28            & -23.6   & -18.4    & -21.1    & 0.369\\
+                        \hline
+                        SVSW          & 99.1     & 8.38            & 84.6    & 117.0    & 99.2     & 0.326 \\
+                        \hline
+                    \end{tabular}
+                    \caption{Julia with Mersenne Twister 19937}
+                \end{centering}
+                \end{table}
+
+\subsubsection{CUDA Implementation}
+Below we can see the results of the CUDA implementation. The objective was to generate 30 initial solutions, but after implementing the code and utilizing the profiler, it became clear that 30 functions wasn't enough data to see how much improvement we could get out of using CUDA. We decided to generate 1,000,000 solutions instead, chosen rather arbitrarily as simply a big number. We ran the experiments with a thread pool of 1024 blocks per thread, and the test card was a RTX 3080ti, which has 80 SMs. To fully utilize the card, we went with a vector size that was arbitrarily larger than $80\cdot 1024 = 81,92$, which is where we settled on 1,000,000. We used the CuRAND implementations of the Mersenne Twister, the XORWow, and the Philox 32 generators. To get a comparison of how effective CUDA is at parallelizing this task, we also consider 30 solutions and 50,000 solutions later in this section. We found that on average all three PRNGs had roughly the same performance on all 10 objective functions. The average values for each of the generators on each of the functions was within one order of magnitude, where most functions performed on average almost the same. Some generators were able to find better minimum solutions than others, but it doesn't seem to correlate a generator to a type of function landscape. For example, the Philox generator found the best solution of the three generators on the \ref{eq:rosenbrock} function, but the difference in solutions to the same function from other generators was still within one standard deviation of the results gathered. This leads us to believe that all generators performed on average equally as well. Looking at the time of each function, all generators performed almost the same on each given function. For example, the \ref{eq:ackley_one} ran for 0.00845 s using all three generators. That is to be expected, because all the numbers were pre-generated using the three generators before the experimentation started. The CuRAND documentation recommends generating many numbers in bulk rather than generating individual numbers one at a time, so that we can take advantage of parallelization when generating our inputs. This is exactly what we implemented, so the time cost of each generator is negated in these experiments.
+        \begin{table}[h!]
+            \begin{centering}
+                \begin{tabular}{|c||c|c|c|c|c|c|}
+                    \hline
+                                & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
+                    \hline
+                    \hline
+                    Ackley One & 583.12 & 58.6578 & 304.542 & 842.013 & 583.285 & 0.00845 \\
+                    \hline
+                    Ackley Two & 583.037 & 16.5308 & 462.064 & 627.577 & 585.359 & 0.03711 \\
+                    \hline
+                    De Jong 1 & 100140 & 16334.8 & 29912.4 & 176241 & 99688.7 & 0.00042163\\
+                    \hline
+                    Egg Holder & -106.642 & 1565.33 & -8759.94 & 7308.14 & -99.2367 & 0.00992 \\
+                    \hline
+                    Griewangk & 625.04 & 102.136 & 199.357 & 1125.12 & 622.969 & 0.00793 \\
+                    \hline
+                    Rastrigin & 2.69884e+06 & 441123 & 902980 & 5.22212e+06 & 2.69134e+06 & 0.00374 \\
+                    \hline
+                    Rosenbrock's & 5.79781e+10 & 1.43681e+10 & 9.46702e+09 & 1.36466e+11 & 5.73733e+10 & 0.02876\\
+                    \hline
+                    Schwefel & 12556.5 & 1069.19 & 6795.11 & 17630.6 & 12568.6 & 0.00472 \\
+                    \hline
+                    SESW & -21.1838 & 1.25719 & -28.2668 & -16.7156 & -21.1149 & 0.03290 \\
+                    \hline
+                    SVSW & 303499 & 11836.1 & 225942 & 336821 & 303329 & 0.04492 \\
+                    \hline
+                \end{tabular}
+                \caption{1,000,000 Experiments with CUDA using XORWow}
+            \end{centering}
+            \end{table}
+
+        \begin{table}[h!]
+            \begin{centering}
+                \begin{tabular}{|c||c|c|c|c|c|c|}
+                    \hline
+                                & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
+                    \hline
+                    \hline
+                    Ackley One & 582.921 & 58.6353 & 308.961 & 843.791 & 583.149 & 0.00845 \\
+                    \hline
+                    Ackley Two & 583.059 & 16.5201 & 459.279 & 628.006 & 585.38 & 0.03711 \\
+                    \hline
+                    De Jong 1 & 100127 & 16334.8 & 30795.6 & 175801 & 99677.5 & 0.00042323\\
+                    \hline
+                    Egg Holder & -107.924 & 1563.63 & -7848.96 & 7437.9 & -102.868 & 0.00992 \\
+                    \hline
+                    Griewangk & 625.142 & 101.975 & 199.423 & 1121.05 & 623.185 & 0.00793 \\
+                    \hline
+                    Rastrigin & 2.69884e+06 & 441123 & 902980 & 5.22212e+06 & 2.69134e+06 & 0.00374 \\
+                    \hline
+                    Rosenbrock's & 5.79839e+10 & 1.43691e+10 & 9.19142e+09 & 1.34815e+11 & 5.73814e+10 & 0.02876 \\
+                    \hline
+                    Schwefel & 12559.7 & 1067.37 & 7388.06 & 17928.6 & 12570.3 & 0.00472\\
+                    \hline
+                    SESW & -21.1796 & 1.25551 & -28.1444 & -16.5571 & -21.1133 & 0.03290 \\
+                    \hline
+                    SVSW & 303499 & 11836.1 & 225942 & 336821 & 303329 & 0.04492 \\
+                    \hline
+                \end{tabular}
+                \caption{1,000,000 Experiments with CUDA using Mersenne Twister}
+            \end{centering}
+            \end{table}
+
+        \begin{table}[h!]
+            \begin{centering}
+                \begin{tabular}{|c||c|c|c|c|c|c|}
+                    \hline
+                                & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
+                    \hline
+                    \hline
+                    Ackley One & 583.075 & 58.607 & 304.909 & 829.551 & 583.199 & 0.00845 \\
+                    \hline
+                    Ackley Two & 583.097 & 16.5323 & 471.824 & 628.922 & 585.396 & 0.03711 \\
+                    \hline
+                    De Jong 1 & 100149 & 16344.2 & 32357.6 & 182461 & 99709 & 0.00042230\\
+                    \hline
+                    Egg Holder & -106.53 & 1565.91 & -8484.27 & 7582.61 & -99.0725 & 0.00992 \\
+                    \hline
+                    Griewangk & 625.134 & 102.023 & 205.271 & 1110.3 & 623.039 & 0.00793 \\
+                    \hline
+                    Rastrigin & 2.69884e+06 & 441123 & 902980 & 5.22212e+06 & 2.69134e+06 & 0.00374 \\
+                    \hline
+                    Rosenbrock's & 5.80077e+10 & 1.43466e+10 & 8.38982e+09 & 1.37005e+11 & 5.74165e+10 & 0.02876 \\
+                    \hline
+                    Schwefel & 12559.4 & 1068.21 & 7481.93 & 17714.3 & 12569.9 & 0.00472 \\
+                    \hline
+                    SESW & -21.1838 & 1.25621 & -27.9692 & -16.6082 & -21.115 & 0.03290\\
+                    \hline
+                    SVSW & 303516 & 11805.7 & 219669 & 336788 & 303327 & 0.04493\\
+                    \hline
+                \end{tabular}
+                \caption{1,000,000 Experiments with CUDA using Philox}
+            \end{centering}
+            \end{table}
+$ $ \\ $ $ \\ $ $ \\ $ $ \\ 
+Before we move on to the empirical gradient descent data, we also consider running the CUDA experimentation on varying input sizes. We considered 30 experiments, 50,000 experiments, and the 1,000,000 experiments shown above. The leftmost section of the following table shows the average, best solution, and execution time of the 30-experiment data, the middle section shows the 50,000 experiment results, and the right most column is the 1,000,000 experiment results. This table only considers the XORWow results, as the other generators exhibited similar patterns in all experiments.
         \begin{table}[h]
-        \begin{centering}
-            \begin{tabular}{|c||c|c|c|c|c|c|}
-                \hline
-                            & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
-                \hline
-                \hline
-                Ackley's One & 587.19 & 60.62 & 424.5 & 705.34 & 588.17 & 0.438 \\
-                \hline
-                Ackley's Two & 652.36 & 14.56 & 602.65 & 677.75 & 653.94 & 0.053 \\
-                \hline
-                1st De Jong's & 104726.64 & 14731.69 & 79401.66 & 136052.36 & 105329.46 & 0.022 \\
-                \hline
-                Egg Holder & -67.51 & 1564.88 & -3543.09 & 3168.68 & -199.16 & 0.119 \\
-                \hline
-                Griewangk & 635.73 & 129.05 & 354.25 & 841.71 & 663.16 & 0.065 \\
-                \hline
-                Rastrigin & $2.6 \times 10^{6}$ & 511998.81 & $1.6 \times 10^6$ & $2.9 \times 10^6$ & $2.5 \times 10^6$ & 0.025 \\
-                \hline
-                Rosenbrock & $5.5 \times 10^{10}$ & $1.5 \times 10^{10}$ & $2.6 \times 10^{10}$ & $8.2 \times 10^{10}$ & $5.6 \times 10^{10}$ & 0.055 \\
-                \hline
-                Schwefel's & 12265.91 & 898.52 & 10669.58 & 15107.91 & 12154.59 & 0.044 \\
-                \hline
-                SESW & -20.89 & 1.31 & -23.97 & -18.68 & -20.59 & 0.083 \\
-                \hline
-                SVSW & 94.07 & 7.9 & 77.61 & 122.17 & 93.86 & 0.081 \\
-                \hline
-            \end{tabular}
-            \caption{Julia with Xoshiro256++}
-        \end{centering}
-        \end{table}
+            \begin{centering}
+                \begin{tabular}{|c||c|c|c||c|c|c||c|c|c|}
+                    \hline
+                                & Average & Minimum & Time [s] & Average & Minimum & Time [s] & Average & Minimum & Time [s] \\
+                    \hline
+                    \hline
+                    Ackley One & 585.976 & 484.611 & 0.00067 & 582.114 & 335.513 & 0.00065 & 583.12 & 304.542 & 0.00845 \\ 
+                    \hline
+                    Ackley Two & 582.764 & 549.495 & 0.00288 & 583.354 & 468.481 & 0.00286 & 583.037 & 462.064 & 0.03711 \\
+                    \hline
+                    De Jong 1 & 94620.3 & 64505.6 & 0.00003 & 99822.7 & 39754.1 & 0.00003 & 100140 & 29912.4 & 0.00042\\
+                    \hline
+                    Egg Holder & 94.5769 & -4812.16 & 0.00076 & -103.618 & -6552.22 & 0.00076 & -106.642 & -8759.94 & 0.00992 \\
+                    \hline
+                    Griewangk & 662.552 & 504.55 & 0.0009 & 625.738 & 219.673 & 0.00065 & 625.04 & 199.357 & 0.00793 \\
+                    \hline
+                    Rastrigin & 2.63e+06 & 1.79e+06 & 0.00029 & 2.7e+06 & 894380 & 0.00029 & 2.69e+06 & 902980 & 0.00374 \\
+                    \hline
+                    Rosenbrock's & 5.98e+10 & 3.18e+10 & 0.00127 & 5.79e+10 & 1e+10 & 0.00222 & 5.79e+10 & 9.46e+09 & 0.02876\\
+                    \hline
+                    Schwefel & 12367.4 & 9750.19 & 0.00039 & 12563.7 & 8469.67 & 0.00036 & 12556.5 & 6795.11 & 0.00472 \\
+                    \hline
+                    SESW & -21.3494 & -23.4479 & 0.00253 & -21.1728 & -28.3343 & 0.00253 & -21.1838 & -28.2668 & 0.0329 \\
+                    \hline
+                    SVSW & 301685 & 269094 & 0.0035 & 302376 & 227596 & 0.00347 & 303499 & 225942 & 0.04492 \\
+                    \hline
+                \end{tabular}
+                \caption{Comparing 30, 50,000, and 1,000,000 Tests in CUDA using XORWow}
+            \end{centering}
+            \end{table}
+$ $ \\ $ $ \\ 
+We can see from the above table that each of the objective functions have very similar average solutions, regardless of the number of experiments run. For example, the \ref{eq:sesw} function had averages that were all within 0.2 of one another. The one major outlier to this pattern is the \ref{eq:egg} function, where the average varies incredibly from the 30 experiments to the larger tests. It is expected that the larger test cases produce better minimum results, solely because the larger instances have more chances of getting lucky. We can see this is the case, since in every case, the 50,000 experiments found a lower solution compared to the 30 test cases, and the 1,000,000 experiments found a lower solution compared to all 50,000 test cases, except for the \ref{eq:rastrigin} and the very close tie in the \ref{eq:sesw}. However, the interesting point about comparing these different sized tests lies in the time difference. We can see that the 30 tests and 50,000 tests both ran in almost the same time per benchmark function. This logically makes sense, due to the architecture of the GPU used. Even running 50,000 experiments wasn't enough to fully maximize the hardware utilization, meaning that functionally the 30 experiments and 50,000 experiments both ran fully in parallel. The time of execution only changes when we exceed the hardware capabilities of true parallelization in the GPU, with the 1,000,000 test cases. However, even knowing that we are more than fully utilizing the hardware, the time to run 1,000,000 test cases was still on the order of single digit milliseconds, except for the \ref{eq:rosenbrock}, the \ref{eq:sesw}, and the \ref{eq:svsw}. These experiments took 10s of milliseconds to run. Comparing this with the Julia implementation of 30 experiments on the same functions, the CUDA implementation outperformed in all objective functions while taking fractions of the overall compute time. This isn't to say that the Julia implementation is slow or inherently bad, because Julia is a high-performance low level scientific computing language very similar in performance to C. The Julia implementation also took advantage of SIMD vector operations, instead of costly for loops, to compute the sums across 30 dimensions that each objective function requires. This comparison just shows the power of utilizing the massive parallelization capabilities of running code on a GPU verses a CPU. 
 
-	\begin{table}[h]
-        \begin{centering}
-            \begin{tabular}{|c||c|c|c|c|c|c|}
-                \hline
-                            & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
-                \hline
-                \hline
-                Ackley One & 583.12 & 58.6578 & 304.542 & 842.013 & 583.285 & 0.00845 \\
-                \hline
-                Ackley Two & 583.037 & 16.5308 & 462.064 & 627.577 & 585.359 & 0.03711 \\
-                \hline
-                De Jong 1 & 100140 & 16334.8 & 29912.4 & 176241 & 99688.7 & 0.00042163\\
-                \hline
-                Egg Holder & -106.642 & 1565.33 & -8759.94 & 7308.14 & -99.2367 & 0.00992 \\
-                \hline
-                Griewangk & 625.04 & 102.136 & 199.357 & 1125.12 & 622.969 & 0.00793 \\
-                \hline
-                Rastrigin & 2.69884e+06 & 441123 & 902980 & 5.22212e+06 & 2.69134e+06 & 0.00374 \\
-                \hline
-                Rosenbrock's Saddle & 5.79781e+10 & 1.43681e+10 & 9.46702e+09 & 1.36466e+11 & 5.73733e+10 & 0.02876\\
-                \hline
-                Schwefel & 12556.5 & 1069.19 & 6795.11 & 17630.6 & 12568.6 & 0.00472 \\
-                \hline
-                Sine Envelope Sine Wave & -21.1838 & 1.25719 & -28.2668 & -16.7156 & -21.1149 & 0.03290 \\
-                \hline
-                Stretch V Sine Wave & 303499 & 11836.1 & 225942 & 336821 & 303329 & 0.04492 \\
-                \hline
-            \end{tabular}
-            \caption{1000000 Experiments with CUDA using XORWow}
-        \end{centering}
-        \end{table}
+        \subsection{Empirical Gradient Descent}
+Below we can see the results of the empirical gradient descent method being used on the best solution generated for each objective function. This section only covers the Julia implementation of the gradient descent method, because unfortunately due to time constraints the CUDA implementation couldn’t be finished. As such, the results shown below only contain the two generators we used in the Julia implementation. We used a step size of $0.001$ when running these experiments. 
+            \begin{table}[h!]
+                \begin{centering}
+                    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+                        \hline
+                                        & Ackley 1 & Ackley 2 & De Jong 1 & Egg Holder & Griewangk \\
+                        \hline
+                        \hline
+                        Minimum Xoshiro & 376.18  & 602.74   & 0.00073   & -10414.71  &           \\
+                        \hline
+                        Minimum Mersenne& 358.47  & 607.49   & 0.00075   & -12307.96  &           \\
+                        \hline
+                    \end{tabular}
+                    \caption{Local optima with empirical gradient descent in Julia}
+            \end{centering}
+            \end{table}
 
-	\begin{table}[h]
-        \begin{centering}
-            \begin{tabular}{|c||c|c|c|c|c|c|}
-                \hline
-                            & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
-                \hline
-                \hline
-                Ackley One & 582.921 & 58.6353 & 308.961 & 843.791 & 583.149 & 0.00845 \\
-                \hline
-                Ackley Two & 583.059 & 16.5201 & 459.279 & 628.006 & 585.38 & 0.03711 \\
-                \hline
-                De Jong 1 & 100127 & 16334.8 & 30795.6 & 175801 & 99677.5 & 0.00042323\\
-                \hline
-                Egg Holder & -107.924 & 1563.63 & -7848.96 & 7437.9 & -102.868 & 0.00992 \\
-                \hline
-                Griewangk & 625.142 & 101.975 & 199.423 & 1121.05 & 623.185 & 0.00793 \\
-                \hline
-                Rastrigin & 2.69884e+06 & 441123 & 902980 & 5.22212e+06 & 2.69134e+06 & 0.00374 \\
-                \hline
-                Rosenbrock's Saddle & 5.79839e+10 & 1.43691e+10 & 9.19142e+09 & 1.34815e+11 & 5.73814e+10 & 0.02876 \\
-                \hline
-                Schwefel & 12559.7 & 1067.37 & 7388.06 & 17928.6 & 12570.3 & 0.00472\\
-                \hline
-                Sine Envelope Sine Wave & -21.1796 & 1.25551 & -28.1444 & -16.5571 & -21.1133 & 0.03290 \\
-                \hline
-                Stretch V Sine Wave & 303499 & 11836.1 & 225942 & 336821 & 303329 & 0.04492 \\
-                \hline
-            \end{tabular}
-            \caption{1000000 Experiments with CUDA using Mersenne Twister}
-        \end{centering}
-        \end{table}
-
-	\begin{table}[h]
-        \begin{centering}
-            \begin{tabular}{|c||c|c|c|c|c|c|}
-                \hline
-                            & Average & Standard Deviation & Minimum & Maximum & Median & Time [s] \\
-                \hline
-                \hline
-                Ackley One & 583.075 & 58.607 & 304.909 & 829.551 & 583.199 & 0.00845 \\
-                \hline
-                Ackley Two & 583.097 & 16.5323 & 471.824 & 628.922 & 585.396 & 0.03711 \\
-                \hline
-                De Jong 1 & 100149 & 16344.2 & 32357.6 & 182461 & 99709 & 0.00042230\\
-                \hline
-                Egg Holder & -106.53 & 1565.91 & -8484.27 & 7582.61 & -99.0725 & 0.00992 \\
-                \hline
-                Griewangk & 625.134 & 102.023 & 205.271 & 1110.3 & 623.039 & 0.00793 \\
-                \hline
-                Rastrigin & 2.69884e+06 & 441123 & 902980 & 5.22212e+06 & 2.69134e+06 & 0.00374 \\
-                \hline
-                Rosenbrock's Saddle & 5.80077e+10 & 1.43466e+10 & 8.38982e+09 & 1.37005e+11 & 5.74165e+10 & 0.02876 \\
-                \hline
-                Schwefel & 12559.4 & 1068.21 & 7481.93 & 17714.3 & 12569.9 & 0.00472 \\
-                \hline
-                Sine Envelope Sine Wave & -21.1838 & 1.25621 & -27.9692 & -16.6082 & -21.115 & 0.03290\\
-                \hline
-                Stretch V Sine Wave & 303516 & 11805.7 & 219669 & 336788 & 303327 & 0.04493\\
-                \hline
-            \end{tabular}
-            \caption{1000000 Experiments with CUDA using Philox}
-        \end{centering}
-        \end{table}
-
-	\begin{table}[h]
-        \begin{centering}
-            \begin{tabular}{|c||c|c|c||c|c|c||c|c|c||}
-                \hline
-                            & Average & Minimum & Time [s] & Average & Minimum & Time [s] & Average & Minimum & Time [s] \\
-                \hline
-                \hline
-                Ackley One & 585.976 & 484.611 & 0.00067702 & 582.114 & 335.513 & 0.00065619 & 583.12 & 304.542 & 0.00845 \\ 
-                \hline
-                Ackley Two & 582.764 & 549.495 & 0.00288 & 583.354 & 468.481 & 0.00286 & 583.037 & 462.064 & 0.03711 \\
-                \hline
-                De Jong 1 & 94620.3 & 64505.6 & 0.0000336 & 99822.7 & 39754.1 & 0.00003565 & 100140 & 29912.4 & 0.00042163\\
-                \hline
-                Egg Holder & 94.5769 & -4812.16 & 0.00076595 & -103.618 & -6552.22 & 0.00076637 & -106.642 & -8759.94 & 0.00992 \\
-                \hline
-                Griewangk & 662.552 & 504.55 & 0.00090486 & 625.738 & 219.673 & 0.00065888 & 625.04 & 199.357 & 0.00793 \\
-                \hline
-                Rastrigin & 2.63469e+06 & 1.79935e+06 & 0.00029046 & 2.70009e+06 & 894380 & 0.00029152 & 2.69884e+06 & 902980 & 0.00374 \\
-                \hline
-                Rosenbrock's Saddle & 5.9892e+10 & 3.18394e+10 & 0.00127 & 5.7995e+10 & 1.00945e+10 & 0.00222 & 5.79781e+10 & 9.46702e+09 & 0.02876\\
-                \hline
-                Schwefel & 12367.4 & 9750.19 & 0.00039213 & 12563.7 & 8469.67 & 0.000369.98 & 12556.5 & 6795.11 & 0.00472 \\
-                \hline
-                Sine Envelope Sine Wave & -21.3494 & -23.4479 & 0.00253 & -21.1728 & -28.3343 & 0.002533 & -21.1838 & -28.2668 & 0.03290 \\
-                \hline
-                Stretch V Sine Wave & 301685 & 269094 & 0.0035 & 302376 & 227596 & 0.00347 & 303499 & 225942 & 0.04492 \\
-                \hline
-            \end{tabular}
-            \caption{Comparing 30, 50000, and 1000000 Tests in CUDA using XORWow}
-        \end{centering}
-        \end{table}
-
+            \begin{table}[h]
+                \begin{centering}
+                    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|}
+                        \hline
+                                        & Rastrigin & Rosenbrock            & Schwefel & SESW   & SVSW \\
+                        \hline
+                        \hline
+                        Minimum Xoshiro & 358286.94 & $4.06 \times 10^{10}$ & 4125.82  & -29.73 &      \\
+                        \hline
+                        Minimum Mersenne& 148870.89 & $2.32 \times 10^{10}$ & 3869.72  & -29.36 &      \\
+                        \hline
+                    \end{tabular}
+                    \caption{Local optima with empirical gradient descent in Julia}
+            \end{centering}
+            \end{table}
+$ $ \\
+We can see from the tables above that the empirical gradient descent method was able to produce a minimum solution that was better than the Julia random search algorithms in all cases except for the \ref{eq:rosenbrock} function. This could be possibly due to some error in the algorithm not stopping in time. Additionally, the empirical gradient descent method was only slightly better in the \ref{eq:ackley_two} benchmark, likely due to the extremely varied solution space that equation represents. When comparing the empirical gradient descent to simply generating 1,000,000 solutions in CUDA, we found that the empirical gradient descent generated an improved solution in all benchmark equations except for \ref{eq:ackley_one}, \ref{eq:ackley_two}, and \ref{eq:rosenbrock}, where CUDA RNG outperformed. Because of the extreme nature of the solution spaces in those equations in particular, these results make sense. Empirical gradient descent has no way of getting out of local holes when searching for the global optimum, and since these three equations specifically have many local minima, randomly generating many points simply has a higher probability of landing in a better hole.
+\pagebreak
     \section{Discussion}
-        Compare empirical gradient to other standard methods in numerical optimization of geometric structures:
-        \begin{itemize}
-            \item Barzilai-Borwein method
-            \item Wolfe conditions and Line search
-            \item Conjugate gradient method
-            \item Proximal gradient method
-            \item Stochastic gradient descent
-            \item Mirror descent
-            \item Broyden–Fletcher–Goldfarb–Shanno algorithm
-            \item Davidon–Fletcher–Powell formula
-            \item Nelder–Mead method
-            \item Gauss–Newton algorithm
-            \item Quantum annealing
-            \item Hill climbing
-        \end{itemize}
+We have found, as shown above by the results section, that empirical gradient descent is better in most cases than randomly generating many initial starting solutions, even in the cases where we can generate millions of solutions in minimal time. However, we have also seen that empirical gradient descent is not perfect, and in fact only got within less than 1 step size of the global optima in the \ref{eq:de_jong} function. This function is unimodal, so the gradient descent is quite effective, but on functions that are multimodal the gradient descent struggled, not even beating randomly generating many solutions in some cases. Empirical gradient descent is not the only method in numerical optimization of geometric structures. We can give a structured overview of some of the common numerical optimization techniques.
 
+\begin{enumerate}
+\item Empirical Gradient Descent
+    \begin{enumerate}
+        \item \textbf{Overview:} Empirical gradient descent iteratively moves towards the minimum of the objective function. It achieves this by systematically adjusting each of the parameters in the solution vector in the direction of the negative gradient. This method is cheaper than the standard gradient descent because we don't need to calculate partial derivatives.
+        \item \textbf{Pros:} This method is simple and easy to implement, and it is a good baseline for numerical optimization.
+        \item \textbf{Cons:} This method is very sensitive to step size. We saw this in the \ref{eq:de_jong} function because we found a solution that was less than 1 step away from the true global minimum. This method is also very prone to getting stuck in holes in the cases where we have multimodal functions. 
+    \end{enumerate}
+\item Conjugate Gradient
+    \begin{enumerate}
+        \item \textbf{Overview:} The conjugate gradient method is similar to the empirical gradient method, except it works best on large-scale unconstrained optimization problems.
+        \item \textbf{Pros:} This method is capable of faster convergence on quadratic functions when compared with standard gradient descent.
+        \item \textbf{Cons:} This method is not suited well for non-quadratic functions and isn't applicable when there are constraints. 
+    \end{enumerate}
+\item Stochastic Gradient Descent
+    \begin{enumerate}
+        \item \textbf{Overview:} Stochastic gradient descent builds on standard gradient descent, except it uses a random portion of the full data to improve upon in each iteration.
+        \item \textbf{Pros:} This method is well suited for large problems and is capable of escaping local minima due to the stochasticity involved in improving portions of the input at a time.
+        \item \textbf{Cons:} This method requires a lot of tuning of learning rates. Because of the stochasticity, the hyperparameters of the method greatly impact the convergence abilities.
+    \end{enumerate}
+\item Gauss-Newton
+    \begin{enumerate}
+        \item \textbf{Overview:} The Gauss-Newton method is highly effective at solving non-linear least squares optimization problems. 
+        \item \textbf{Pros:} In addition to being very well suited for least squares objective functions, this method is also capable of handling non-linearities in the objective function. 
+        \item \textbf{Cons:} This method is sensitive to initial guesses, meaning that it can suffer from the same issues as empirical gradient descent. Finding a good initial starting point is critical to success in this method. 
+    \end{enumerate}
+\item Quantum Annealing
+    \begin{enumerate}
+        \item \textbf{Overview:} Quantum annealing uses quantum mechanics theory to explore solution spaces to complex objective functions. 
+        \item \textbf{Pros:} This method can potentially exponentially speed up the runtime compared to standard gradient descent based methods, making it highly attractive for complex problems where gradient descent takes a long time. This method is also capable of exploring multiple solutions simultaneously, once again posing as a viable alternative to multimodal problems with many local minima. 
+        \item \textbf{Cons:} This method requires special hardware known as quantum annealers. The most well-known quantum annealer is the D-Wave quantum annealer. Quantum computers are not known for their obtainability and widespread use, so finding hardware capable of performing these operations could be tricky. 
+    \end{enumerate}
+\item Hill Climbing
+    \begin{enumerate}
+        \item \textbf{Overview:} Hill climbing method is a local search algorithm that continues to move in the direction of an increasing elevation in the search space. This is very similar to the empirical gradient descent method, just moving in the opposite direction. This could be combined with a gradient descent method to climb out of local minima but descent down from local maxima. 
+        \item \textbf{Pros:} Like the empirical gradient descent, this function is very similar in approach, and is simple and intuitive from an algorithm perspective.
+        \item \textbf{Cons:} This can get stuck in local maxima just like gradient descent methods getting stuck in local minima, and as such it does not guarantee finding the global maxima. 
+    \end{enumerate}
+\end{enumerate}
+There are many optimization algorithms for numerical optimization of geometric spaces, and the choice ultimately comes down to the type of problem or specific characteristics involved that we want to optimize. Oftentimes, combining multiple algorithms or adjusting parameters dynamically while optimizing could be more effective than using a single static algorithm.
+\pagebreak
     \section{Conclusion}
+We have looked at applying four different PRNGs to ten classic numerical optimization benchmark functions. We experimented on generating 30 random solutions, then using empirical gradient descent to improve upon the best one. We also considered generating many more initial random solutions using the massively parallel capabilities of GPU computing. Overall, we found that the quality of the PRNG and the quality of the randomly generated solutions were vital to finding the global minimum in these benchmark equations. We also found that empirical gradient descent is not perfect, especially when it comes to multimodal objective functions, and other more complex algorithms are often necessary to avoid getting stuck in local optima. In the future, we would like to extend upon this project by implementing empirical gradient descent in CUDA, to see if we can leverage the massive parallelization of GPU computing to perform gradient descent on many solutions concurrently. We would also like to implement a dynamic step size approach to the empirical gradient descent, where the step size starts out large and progressively changes when more optimal values stop being found. By combining a shrinking step size, we can more finely find the bottom of a hole, while increasing the step size when a hole is found could potentially help to break out of the local minima. An adaptive step size for the empirical gradient descent running on a GPU would make for interesting future work. 
+\pagebreak
+\nocite*{}
+\bibliography{references}
+
 
 \end{document}
