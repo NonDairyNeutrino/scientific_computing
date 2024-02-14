@@ -1,0 +1,4 @@
+name = "TravelingSales"
+uuid = "d3cf82a0-2133-4469-b596-7ddca31fcb90"
+authors = ["nondairyneutrino <nathaniel.chapman@cwu.edu>"]
+version = "0.1.0"
