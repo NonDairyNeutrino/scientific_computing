@@ -31,7 +31,7 @@
 % }
 % \lstset{style=mystyle}
 % RICH
-\usepackage{graphicx, caption}
+\usepackage{graphicx, wrapfig, caption}
 \usepackage{hyperref}
 % BIBLIOGRAPHY
 \usepackage[
@@ -106,26 +106,23 @@ sorting=ynt
                 a_k^i = \frac{F_k^i}{m_k^i}.
             \end{equation}
 
+            \begin{wrapfigure}{r}{0.45\textwidth}
+                \begin{center}
+                    \includegraphics{images/GSA.jpg}
+                \end{center}
+                \caption{The Gravitational Search Algorithm}
+            \end{wrapfigure}
+
             The equation of motion of a physical system completely determines its dynamics, as such, it the goal of us as physicists (at least during the reading of the investigation) to find the sequence positions that satisfy (i.e. solve) the equation of motion.  Analytically, the equation of motion is often a second-order differential equation, but we can still do out best to solve it on a computer.  There is a near infinite number of methods to approximating a solution to a differential equation (called \emph{numerical integrators}) using finite techniques, but here we use the so-called `symplectic Euler Method'
 
-            \begin{subequations}
-                \begin{equation}
-                    v_n^i = r_i v_{n-1}^i + a_{n - 1}^i
-                \end{equation}
-                \begin{equation}
-                    x_n^i = x_{n - 1}^i + v_n^i
-                \end{equation}
-            \end{subequations}
+            \begin{align}
+                v_n^i &= r_i v_{n-1}^i + a_{n - 1}^i \\
+                x_n^i &= x_{n - 1}^i + v_n^i
+            \end{align}
 
             where $x_n^i, v_n^i$ are the position and velocity, respectively, of mass $i$ at step $n$.
 
             After some ending criterion is met, we conclude
-
-            \begin{figure}[h]
-                \centering
-                \includegraphics{images/GSA.jpg}
-                \caption{Conceptual description of the Gravitational Search Algorithm\cite{GSA}}
-            \end{figure}
 
         \subsection*{Branch \& Cut}
 
