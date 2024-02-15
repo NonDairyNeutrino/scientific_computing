@@ -122,9 +122,9 @@ sorting=ynt
 
             where $x_n^i, v_n^i$ are the position and velocity, respectively, of mass $i$ at step $n$.
 
-            After some ending criterion is met, we conclude
+        \subsection*{Branch \& Bound}
 
-        \subsection*{Branch \& Cut}
+            There are two core components to the Branch \& Bound method: \emph{Branch}, where the solution space is recursively partitioned into subsets that could contain the optimizer, and \emph{Bound}, where each of these subsets is effectively represented by the lowest (i.e. bounding) fitness over all its contained solutions.  With only branching, this method reduces to brute-force;  it is with the bounding consideration that the solution space can be more efficiently searched.  The Branch \& Bound method has been applied to the Traveling Sales Problem\cite{branch_bound}.
 
     \section*{Results}
 
