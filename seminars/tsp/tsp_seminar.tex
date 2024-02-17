@@ -124,7 +124,41 @@ sorting=ynt
 
         \subsection*{Branch \& Bound}
 
-            There are two core components to the Branch \& Bound method: \emph{Branch}, where the solution space is recursively partitioned into subsets that could contain the optimizer, and \emph{Bound}, where each of these subsets is effectively represented by the lowest (i.e. bounding) fitness over all its contained solutions.  With only branching, this method reduces to brute-force;  it is with the bounding consideration that the solution space can be more efficiently searched.  The Branch \& Bound method has been applied to the Traveling Sales Problem\cite{branch_bound}.
+            There are two (unsurprising) core components to the Branch \& Bound method: \emph{Branch}, where the search space is recursively partitioned into subsets that could contain the optimizer, and \emph{Bound}, where each of these subsets is effectively represented by the lowest (i.e. bounding) fitness over all its candidate solutions.  With only branching, this method reduces to brute-force;  it is with the bounding consideration that the solution space can be more efficiently searched.  The Branch \& Bound method has been applied to the Traveling Sales Problem\cite{branch_bound}.  Psuedo-code for a generic Branch \& Bound is implemented in algorithm \ref{alg:bb}.
+
+            The branching stage recursively partitions the search space into two or more, typically disjoint, subsets; this could be done with a $k$d-tree.  In actual applications of this method, a data structure must be used to store these subsets of candidate solutions; these structured sets are called \emph{instances}.  In other words, for a collection of solutions that have some relationship to each other $I$, there is the corresponding collection $S_I$ of solutions that \emph{do not} have a relationship to each other (i.e. a \emph{set}).  Some common choices for this structure are a: queue (First in, First out), stack (Last in, First out), and a priority queue (sorts the solutions by their fitness)\cite{Clausen2003BranchAB}.  Choosing a queue structure results in traversing the ``partitioned solutions space tree'' using a breadth-first search, a stack structure results in a depth-first search, and a priority-queue in a ``best-first search''\cite{toolbox}.
+
+            The bounding stage of the algorithm takes each instance and calculates the lowest (assuming a minimization problem) fitness over all its elements (i.e. candidate solutions).  Then while traversing the tree, the bound of each node (i.e. the root of some subtree) is compared to a globally known bound defined as the least bound found so far.  If the current bound is greater than the global, the alogrithm does not proceed down the rest of that branch i.e. sub-tree as it cannot yield a better solution.
+
+            \begin{algorithm}
+                \DontPrintSemicolon
+                \caption{Branch \& Bound}
+                \label{alg:bb}
+                \KwIn{problem, objective function $f$, lower bound function $bound$}
+                \KwOut{solution}
+                \tcp{initialize solution}
+                $x \gets $ initial guess\;
+                $B \gets f(x)$\;
+                \tcp{initialize structure}
+                $candidate\_structure \gets$ all candidate solutions of problem\;
+                \tcp{traverse tree}
+                \While{candidate\_structure is not empty}{
+                    $node \gets candidate\_structure.pop()$\;
+                    \eIf{node is a single solution and $f(node) < B$}{
+                        $optimum \gets node$\;
+                        $B \gets f(node)$\;
+                        \tcp{otherwise node has multiple branches or it's worse}
+                    }{
+                        \For{branch in node}{
+                            \If{$bound(branch) <= B$}{
+                                $candidate\_structure.push(branch)$
+                            }
+                            \tcp{otherwise optimum isn't in branch}
+                        }
+                    }
+                }
+                \Return{optimum}
+            \end{algorithm}
 
     \section*{Results}
 
