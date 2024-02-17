@@ -1,5 +1,4 @@
 module TravelingSales
-
-greet() = print("Hello World!")
+include("gravity.jl")
 
 end # module TravelingSales

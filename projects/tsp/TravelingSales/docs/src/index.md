@@ -1,16 +1,5 @@
 # TravelingSales.jl Documentation
 
-```@contents
+```@autodocs
+Modules = [TravelingSales]
 ```
-
-## Functions
-
-```@docs
-
-```
-
-## Index
-
-```@index
-```
-
