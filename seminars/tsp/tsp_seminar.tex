@@ -49,13 +49,9 @@ sorting=ynt
 
     \maketitle
 
-    \section*{Introduction}        
-
-    \section*{Methods}
-
         While there are many methods available to optimize a combinatorial problem, we will focus on two methods: Gravitational Search, a heuristic-based algorithm, and Branch \& Cut, an exact method.
 
-        \subsection*{The Gravitational Search Algorithm}
+        \section*{The Gravitational Search Algorithm}
 
             The Gravitational Search Algorithm (GSA) seeks to create an analog between the evolution and convergence often found in evolutionary algorithms and the model of Newtonian gravitation.  The methods used to simulate systems under the influence of gravitational interaction are well posed and are structured in such a way that creating this analogy is straightforward.
             
@@ -84,7 +80,7 @@ sorting=ynt
                 F_k^{ij} = \frac{G_k m_k^i m_k^j}{R_k^{ij} + \varepsilon} \left(x_k^j - x_k^i \right)
             \end{equation}
 
-            where $G$ is the universal gravitational constant, $R^{ij}$ is the Euclidean-distance between mass $m^i$ and mass $m^j$ given by, and $\varepsilon$ is some small constant.  The discrepancy between this model and that of traditional Newtonian gravitational mechanics is that in the latter, the dependence of the distance between the masses is squared (i.e. $\left(R^{ij}\right)^2$), rather linear (i.e. $R^{ij}$); the linear dependence given here is a note that more optimal solutions were found\cite{GSA} with a linear dependence rather than a quadratic.
+            where $G_k = G_0 e^{-\alpha t_k /T}$, and $G_0, \alpha$, and $T$ are tuning parameters, is the universal gravitational constant, $R^{ij}$ is the Euclidean-distance between mass $m^i$ and mass $m^j$ given by, and $\varepsilon$ is some small constant.  The discrepancy between this model and that of traditional Newtonian gravitational mechanics is that in the latter, the dependence of the distance between the masses is squared (i.e. $\left(R^{ij}\right)^2$), rather linear (i.e. $R^{ij}$); the linear dependence given here is a note that more optimal solutions were found\cite{GSA} with a linear dependence rather than a quadratic.
 
             To inject stochasticity into the method, define the net gravitational force $F^i$ acting on mass $m^i$ as 
 
@@ -121,8 +117,10 @@ sorting=ynt
             \end{align}
 
             where $x_n^i, v_n^i$ are the position and velocity, respectively, of mass $i$ at step $n$.
+\clearpage
+\pagebreak
 
-        \subsection*{Branch \& Bound}
+        \section*{Branch \& Bound}
 
             There are two (unsurprising) core components to the Branch \& Bound method: \emph{Branch}, where the search space is recursively partitioned into subsets that could contain the optimizer, and \emph{Bound}, where each of these subsets is effectively represented by the lowest (i.e. bounding) fitness over all its candidate solutions.  With only branching, this method reduces to brute-force;  it is with the bounding consideration that the solution space can be more efficiently searched.  The Branch \& Bound method has been applied to the Traveling Sales Problem\cite{branch_bound}.  Psuedo-code for a generic Branch \& Bound is implemented in algorithm \ref{alg:bb}.
 
@@ -160,15 +158,44 @@ sorting=ynt
                 \Return{optimum}
             \end{algorithm}
 
+\pagebreak
+
     \section*{Results}
 
-        Show results of each method on both the TSP and ATSP.
+        The Gravitational Search Algorithm (GSA) has been benchmarked and compared to other methods such as Particle Swarm Optimization (PSO) and Real Genetic Algorithm (RGA)\cite{GSA}.  These data are done using unimodal (ref. \cite{GSA} table 1) and multimodal (ref. \cite{GSA} table 2) benchmarks in high dimenions ($n$) and multimodal benchmarks in low dimension (ref. \cite{GSA} table 3).
 
-    \section*{Discussion}
+        Because GSA has great ``attractive power'', it should excel at optimizing unimodal functions.  Figure \ref{fig:unimodal} compares this attractive power against the other methods.
 
-        Compare and contrast the different methods with their pros and cons
+        \begin{figure}[h]
+            \centering
+            \includegraphics*[width=0.86\textwidth]{images/unimodal.png}
+            \caption{High dimensional unimodal benchmarks of RGA, PSO, and GSA}
+            \label{fig:unimodal}
+        \end{figure}
+
+        For high-dimensional multimodal benchmarks (figure \ref{fig:multimodalHigh}), GSA still performs decently well, but is not able to beat its counterparts for some benchmarks.  These data show that GSA is less effcicient at escaping local optima.  Since the considered multimodal benchmarks have an exponentially increasing number of local minima as the dimension grows, using GSA on even on many randomly chosen initial candidate solutions might still not yield a reasonably good optimum.
+
+        \begin{figure}[h]
+            \centering
+            \includegraphics*[width=0.86\textwidth]{images/multimodal_variable_dimensions.png}
+            \caption{High dimensional multimodal benchmarks of RGA, PSO, and GSA}
+            \label{fig:multimodalHigh}
+        \end{figure}
+
+\pagebreak
+
+        For low dimensional benchmarks (figure \ref{fig:multimodalLow}), all the considered methods perform similarly.
+
+        \begin{figure}[h]
+            \centering
+            \includegraphics*[width=0.86\textwidth]{images/multimodal_fixed.png}
+            \caption{Low dimensional multimodal benchmarks of RGA, PSO, and GSA}
+            \label{fig:multimodalLow}
+        \end{figure}
 
     \section*{Conclusion}
+
+        Because the complexity of combinatorial optimization problems is such a wide spectrum, no single algorithm will be the perform the best for every problem.  For problems with small search spaces, exact methods such as Branch \& Bound are a good choice because they neccessarily find the global optimum, are straightforward to implement, and perform reasonably well.  For problems with either a larger search space or higher complexity, heuristic algorithms such as Gravitational Search should be considered because they are non-exhaustive and generally lead to reasonable performance in both run-time and optimization.  
 
     \printbibliography
 
