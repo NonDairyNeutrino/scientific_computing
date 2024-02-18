@@ -1,11 +1,32 @@
-# Generate the initial colelction of solutions for a given problem
+# Generate the initial collection of solutions for a given problem
 using Random
+
 #= 
 1. import data
 2. parse data into adjacency matrix
 3. generate initial population == generate permutations of cities, city = index
 =#
 
-function generateInitialPopulation(agentCount :: Integer, dimension :: Integer)
-    return [randperm(agentCount) for i in 1:dimension]
+"""
+    Problem
+
+Gives a structured representation of the Traveling Sales Problem
+"""
+struct Problem
+    # import problem instance
+    # parse into weighted adjacency matrix
+    matrix    :: Matrix{T} where T <: Real
+    dimension :: Int
+    function Problem(matrix = rand(10,10) :: Matrix{T} where T <: Real)
+        return new(matrix, size(matrix, 1))
+    end
+end
+
+"""
+    generateInitialPopulation(agentCount :: Integer, dimension :: Integer) :: Vector{Vector{Int}}
+
+Generate the initial collection of agents.
+"""
+function generateInitialPopulation(agentCount :: T, dimension :: T) :: Vector{Vector{Integer}} where T <: Integer
+    return [randperm(dimension) for i in 1:agentCount]
 end
