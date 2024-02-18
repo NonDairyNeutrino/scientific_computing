@@ -2,6 +2,8 @@
 Main module to solve the Traveling Sales problem in both its symmetric and asymmetric forms.
 """
 module TravelingSales
+include("initialize.jl")
+
 """
     Solution
 
@@ -34,5 +36,34 @@ Gives a fitness function for a given problem.
 function fitness(problemMatrix :: Matrix) :: Function
     return solution -> fitness(problemMatrix, solution)
 end
+
+function main()
+    # INITIALIZE
+    # generate initial population (collection of agents)
+    # LOOP BODY
+    # evaluate fitness for each agent
+    # update big g, best, and worst
+    # calculate mass and acceleration for each agent
+    # update velocity and position
+    # LOOP TEST
+    # test if converged
+    # if converged, return best solution
+    # else, loop
+
+    # PARAMETERS
+    maxSteps   = 10
+    agentCount = 2
+    dataFile   = ""
+
+    # INITIALIZE
+    tsp = Problem()
+    population = generateInitialPopulation(agentCount, tsp.dimension)
+
+    for step in 1:maxSteps
+        fitness(tsp.matrix).(population) |> display
+    end
+end
+
+main() #|> display
 
 end # module TravelingSales
