@@ -1,4 +1,6 @@
 *.tar.gz
 *.tar
 *.gz
+*.tsp
+*.astp
 data/
