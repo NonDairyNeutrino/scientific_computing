@@ -1,0 +1,13 @@
+CS 565 Scientific Computing
+Project 2 The Traveling Sales Problem
+Date 02/2024
+
+Authors
+Nathan Chapman
+Hunter Lawarence
+Andrew Struthers
+
+Description
+This work is an implementation of several algorithms to optimize the traveling sales problem.
+Implementations are done in Julia under TravelingSales/ and in CUDA under CUDA/.
+The Julia work implements the Gravitational Search Algorithm, and the CUDA work implements [CUDA algorithm here].
