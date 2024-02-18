@@ -2,7 +2,8 @@ using Documenter
 using TravelingSales
 
 makedocs(
-    sitename = "TravelingSales",
+    sitename = "TravelingSales.jl",
+    authors  = "Nathan Chapman",
     format   = Documenter.HTML(),
     modules  = [TravelingSales],
     pages    = [
@@ -14,6 +15,7 @@ makedocs(
 # Documenter can also automatically deploy documentation to gh-pages.
 # See "Hosting Documentation" and deploydocs() in the Documenter manual
 # for more information.
-#=deploydocs(
-    repo = "<repository url>"
-)=#
+# deploydocs(
+#     repo      = "github.com/NonDairyNeutrino/scientific_computing.git",
+#     devbranch = "trunk"
+# )
