@@ -9,7 +9,7 @@ Hunter Lawarence
 Andrew Struthers
 
 DESCRIPTION
-This work is an implementation of several algorithms to optimize the traveling sales problem.
+This work is an implementation of several algorithms to optimize the symmetric and asymmetric traveling sales problem.
 Implementations are done in Julia under TravelingSales/ and in CUDA under CUDA/.
 The Julia work implements the Gravitational Search Algorithm, and the CUDA work implements [CUDA algorithm here].
 
