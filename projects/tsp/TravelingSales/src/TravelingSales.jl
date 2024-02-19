@@ -32,17 +32,17 @@ function main()
     DISTANCEMAX = # TODO: calculate maximum distance in search space
 
     # INITIALIZE
-    tsp            = Problem()
-    tourVector     = generateInitialPopulation(agentCount, tsp.dimension)
-    solutionVector = Solution.(tourVector)
-    bigGVector     = bigG.(maxSteps, 1:maxSteps)
-
-    # LOOP
-    for step in 1:maxSteps
-        fitnessVector = fitness(tsp.matrix).(tourVector)
-        best          = minimum(fitnessVector)
-        worst         = maximum(fitnessVector)
-        totalMass     = sum(solution.mass for solution in solutionVector)
+    ## initialize population
+    tsp            = Problem(#= DATAFILEPATH =#)
+    tourVector     = generateInitialPopulation(AGENTCOUNT, tsp.dimension)
+    solutionVector = Solution.(tourVector) # velocity is randomly initialized upon Solution creation
+    ## initialize masses
+    fitnessVector  = fitness(tsp.matrix).(getproperty.(solutionVector, :position))
+    best           = minimum(fitnessVector)
+    worst          = maximum(fitnessVector)
+    tempMassVector = (fitnessVector .- worst) / (best - worst)
+    totalMass      = sum(tempMassVector)
+    setproperty!.(solutionVector, :mass, tempMassVector / totalMass) # intialize solution mass
         for (index, solution) in enumerate(solutionVector)
             solution.mass     = mass(worst, best, fitnessVector[index])
             totalForce        = sum(rand() * gravity(bigGVector[step], solution, otherSolution) for otherSolution in filter(solution -> solution.mass > 0.5 * totalMass, solutionVector))
