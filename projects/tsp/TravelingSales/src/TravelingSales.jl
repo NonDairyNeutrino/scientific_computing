@@ -43,12 +43,22 @@ function main()
     tempMassVector = (fitnessVector .- worst) / (best - worst)
     totalMass      = sum(tempMassVector)
     setproperty!.(solutionVector, :mass, tempMassVector / totalMass) # intialize solution mass
+
+    # CORE
+    for step in 1:MAXSTEPS
+        # DEPENDENT MOVEMENT OPERATOR
+        G = GVECTOR[step]
+        K = # TODO: update K
+        Kbest = sort(solutionVector; by = (solution -> solution.mass), rev = true)[1:K]
         for (index, solution) in enumerate(solutionVector)
-            solution.mass     = mass(worst, best, fitnessVector[index])
-            totalForce        = sum(rand() * gravity(bigGVector[step], solution, otherSolution) for otherSolution in filter(solution -> solution.mass > 0.5 * totalMass, solutionVector))
-            acceleration      = totalForce / (solution.mass / totalMass)
-            solution.velocity = rand() * solution.velocity + acceleration
-            solution.position = solution.position + solution.velocity
+            totalForce = 0
+            for otherSolution in Kbest
+                # GRAVITY
+                distance = # TODO: calculate transposition distance between permutations 
+                distanceNormalized = 0.5 + distance / (2 * DISTANCEMAX)
+                totalForce += rand() * GVECTOR[index] * solution.mass * otherSolution.mass * distance / distanceNormalized
+            end
+            acceleration = ceil(totalForce / solution.mass)
         end
     end
 
