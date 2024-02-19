@@ -19,9 +19,17 @@ function main()
     # else, loop
 
     # PARAMETERS
-    maxSteps   = 2
-    agentCount = 3 # must be an integer of at least 2
-    dataFile   = ""
+    MAXSTEPS   = 200 # from literature
+    AGENTCOUNT = 10  # from literature
+    DATAFILEPATH = ""
+    INITIALK   = 5   # from literature
+    
+    INITIALG   = 0.5 # from literature
+    FINALG     = 0.1 # from literature
+    GSTEP      = (FINALG - INITIALG) / MAXSTEPS    # linear decrease from literature
+    GVECTOR    = INITIALG .+ GSTEP .* (1:MAXSTEPS) # linear decrease from literature
+
+    DISTANCEMAX = # TODO: calculate maximum distance in search space
 
     # INITIALIZE
     tsp            = Problem()
