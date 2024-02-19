@@ -17,6 +17,7 @@ struct Problem
     # parse into weighted adjacency matrix
     matrix    :: Matrix{T} where T <: Real
     dimension :: Int
+    # TODO: change to take file path of data file
     function Problem(matrix = rand(10,10) :: Matrix{T} where T <: Real)
         return new(matrix, size(matrix, 1))
     end
@@ -34,7 +35,7 @@ mutable struct Solution
     function Solution(tour :: Vector)
         mass     = 0
         position = tour
-        velocity = rand(length(tour))
+        velocity = rand(length(tour)) #TODO: change upper bound to maximum search space distance
         return new(mass, position, velocity)
     end
 end
