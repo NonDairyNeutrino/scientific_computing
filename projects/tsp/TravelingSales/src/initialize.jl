@@ -1,4 +1,4 @@
-# Generate the initial collection of solutions for a given problem
+# Collection of functions used to initialize the problem
 using Random
 
 #= 
@@ -20,6 +20,41 @@ struct Problem
     function Problem(matrix = rand(10,10) :: Matrix{T} where T <: Real)
         return new(matrix, size(matrix, 1))
     end
+end
+
+"""
+    Solution
+
+Gives a structured object with mass, position, velocity, and acceleration.
+"""
+mutable struct Solution
+    mass         :: Float64
+    position     :: Vector
+    velocity     :: Vector
+    function Solution(tour :: Vector)
+        mass     = 0
+        position = tour
+        velocity = rand(length(tour))
+        return new(mass, position, velocity)
+    end
+end
+
+"""
+    fitness(problemMatrix :: Matrix, solution :: Vector) :: Real
+
+Gives the cost of traveling the given tour.
+"""
+function fitness(problemMatrix :: Matrix, solution :: Vector) :: Float64
+    return sum(problemMatrix[solution[i], solution[i+1]] for i in 1 : (length(solution) - 1)) + problemMatrix[solution[end], solution[1]]
+end
+
+"""
+    fitness(problemMatrix :: Matrix) :: Function
+
+Gives a fitness function for a given problem.
+"""
+function fitness(problemMatrix :: Matrix) :: Function
+    return solution -> fitness(problemMatrix, solution)
 end
 
 """
