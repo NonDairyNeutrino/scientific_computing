@@ -21,17 +21,17 @@ function main()
     # else, loop
 
     # PARAMETERS
-    MAXSTEPS   = 200 # from literature
-    AGENTCOUNT = 10  # from literature
+    MAXSTEPS   = 200 # 200 from literature
+    AGENTCOUNT = 10  # 10 from literature
     DATAFILEPATH = ""
-    INITIALK   = 5   # from literature
+    INITIALK   = 5   # 5 from literature
     
-    INITIALG   = 0.5 # from literature
-    FINALG     = 0.1 # from literature
+    INITIALG   = 0.5 # 0.5 from literature
+    FINALG     = 0.1 # 0.1 from literature
     GSTEP      = (FINALG - INITIALG) / MAXSTEPS    # linear decrease from literature
     GVECTOR    = INITIALG .+ GSTEP .* (1:MAXSTEPS) # linear decrease from literature
 
-    DISTANCEMAX = # TODO: calculate maximum distance in search space
+    # DISTANCEMAX = # TODO: calculate maximum distance in search space
 
     # INITIALIZE
     ## initialize population
@@ -49,23 +49,29 @@ function main()
 
     # CORE
     for step in 1:MAXSTEPS
-        # DEPENDENT MOVEMENT OPERATOR
-        G = GVECTOR[step]
-        K = # TODO: update K
-        Kbest = sort(solutionVector; by = (solution -> solution.mass), rev = true)[1:K]
-        for (index, solution) in enumerate(solutionVector)
-            totalForce = 0
-            for otherSolution in Kbest
-                # GRAVITY
-                distance = # TODO: calculate transposition distance between permutations 
-                distanceNormalized = 0.5 + distance / (2 * DISTANCEMAX)
-                totalForce += rand() * GVECTOR[index] * solution.mass * otherSolution.mass * distance / distanceNormalized
-            end
-            acceleration = ceil(totalForce / solution.mass)
-        end
+        # # DEPENDENT MOVEMENT OPERATOR
+        # G = GVECTOR[step]
+        # K = # TODO: update K
+        # Kbest = sort(solutionVector; by = (solution -> solution.mass), rev = true)[1:K]
+        # for (index, solution) in enumerate(solutionVector)
+        #     totalForce = 0
+        #     for otherSolution in Kbest
+        #         # GRAVITY
+        #         distance = # TODO: calculate transposition distance between permutations 
+        #         # above is the TSP specific result of using transposition as the small-move operator
+        #         # as defined in literature
+        #         distanceNormalized = 0.5 + distance / (2 * DISTANCEMAX)
+        #         totalForce += rand() * GVECTOR[index] * solution.mass * otherSolution.mass * distance / distanceNormalized
+        #     end
+        #     acceleration = totalForce / solution.mass |> ceil
+        #     solution.position += acceleration
+        # end
+
+        # INDEPENDENT MOVEMENT OPERATOR
+        localSearch.(costFunction, solutionVector)
     end
 
-    bestSolution = filter(solution -> solution.mass == 1.0, solutionVector)[1]
+    bestSolution = argmax(solution -> solution.mass, solutionVector)
     return bestSolution.position
 end
 end # module TravelingSales
