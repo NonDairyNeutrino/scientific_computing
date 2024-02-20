@@ -2,6 +2,8 @@
 Main module to solve the Traveling Sales problem in both its symmetric and asymmetric forms.
 """
 module TravelingSales
+# not from standard library
+using Distributions # for velocity
 export main
 include("initialize.jl")
 include("neighborhood.jl")
