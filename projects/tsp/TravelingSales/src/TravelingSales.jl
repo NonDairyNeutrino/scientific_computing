@@ -7,6 +7,20 @@ include("initialize.jl")
 include("neighborhood.jl")
 include("localsearch.jl")
 
+"""
+    distance(x :: Vector, y :: Vector) :: Int
+
+Gives the transposition distance between two permutations.
+"""
+function distance(x :: Vector, y :: Vector) :: Int
+    newy = deepcopy(y)
+    for i in eachindex(x)
+        index = findall(z -> z == x[i], newy)[1]
+        newy = swap(newy, i, index)
+        newy == x ? (return i) : continue
+    end
+end
+
 function main()
     # INITIALIZE
     # generate initial population (collection of agents)
