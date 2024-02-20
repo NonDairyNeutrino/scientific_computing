@@ -4,6 +4,7 @@ Main module to solve the Traveling Sales problem in both its symmetric and asymm
 module TravelingSales
 export main
 include("initialize.jl")
+include("neighborhood.jl")
 
 function main()
     # INITIALIZE
