@@ -5,6 +5,7 @@ module TravelingSales
 export main
 include("initialize.jl")
 include("neighborhood.jl")
+include("localsearch.jl")
 
 function main()
     # INITIALIZE
