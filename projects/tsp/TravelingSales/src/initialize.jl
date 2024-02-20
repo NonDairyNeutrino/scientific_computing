@@ -41,21 +41,21 @@ mutable struct Solution
 end
 
 """
-    fitness(problemMatrix :: Matrix, solution :: Vector) :: Real
+    cost(problemMatrix :: Matrix, solution :: Vector) :: Float64
 
 Gives the cost of traveling the given tour.
 """
-function fitness(problemMatrix :: Matrix, solution :: Vector) :: Float64
+function cost(problemMatrix :: Matrix, solution :: Vector) :: Float64
     return sum(problemMatrix[solution[i], solution[i+1]] for i in 1 : (length(solution) - 1)) + problemMatrix[solution[end], solution[1]]
 end
 
 """
-    fitness(problemMatrix :: Matrix) :: Function
+    cost(problemMatrix :: Matrix) :: Function
 
 Gives a fitness function for a given problem.
 """
-function fitness(problemMatrix :: Matrix) :: Function
-    return solution -> fitness(problemMatrix, solution)
+function cost(problemMatrix :: Matrix) :: Function
+    return solution -> cost(problemMatrix, solution)
 end
 
 """
