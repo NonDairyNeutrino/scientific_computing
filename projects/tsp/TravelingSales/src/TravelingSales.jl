@@ -4,7 +4,9 @@ Main module to solve the Traveling Sales problem in both its symmetric and asymm
 module TravelingSales
 # not from standard library
 using Distributions # for velocity
+
 export main
+
 include("initialize.jl")
 include("neighborhood.jl")
 include("localsearch.jl")
@@ -47,8 +49,6 @@ function main()
     GSTEP      = (FINALG - INITIALG) / MAXSTEPS    # linear decrease from literature
     GVECTOR    = INITIALG .+ GSTEP .* (1:MAXSTEPS) # linear decrease from literature
 
-    # DISTANCEMAX = # TODO: calculate maximum distance in search space
-
     # INITIALIZE
     ## initialize population
     tsp            = Problem(#= DATAFILEPATH =#)
@@ -66,23 +66,24 @@ function main()
 
     # CORE
     for step in 1:MAXSTEPS
-        # # DEPENDENT MOVEMENT OPERATOR
-        # G = GVECTOR[step]
-        # K = # TODO: update K
-        # Kbest = sort(solutionVector; by = (solution -> solution.mass), rev = true)[1:K]
-        # for (index, solution) in enumerate(solutionVector)
-        #     totalForce = 0
-        #     for otherSolution in Kbest
-        #         # GRAVITY
-        #         distance = # TODO: calculate transposition distance between permutations 
-        #         # above is the TSP specific result of using transposition as the small-move operator
-        #         # as defined in literature
-        #         distanceNormalized = 0.5 + distance / (2 * DISTANCEMAX)
-        #         totalForce += rand() * GVECTOR[index] * solution.mass * otherSolution.mass * distance / distanceNormalized
-        #     end
-        #     acceleration = totalForce / solution.mass |> ceil
-        #     solution.position += acceleration
-        # end
+        # DEPENDENT MOVEMENT OPERATOR
+        G = GVECTOR[step]
+        K = INITIALK # TODO: update K
+        Kbest = sort(solutionVector; by = (solution -> solution.mass), rev = true)[1:K]
+        # calculate dependent movement length (gravitational acceleration) for each agent
+        for (index, solution) in Kbest
+            totalForce = 0
+            for otherSolution in Kbest
+                # GRAVITY
+                dist = distance(solution.position, otherSolution.position)
+                # above is the TSP specific result of using transposition 
+                # as the small-move operator as defined in literature
+                distanceNormalized = 0.5 + dist / (2 * DISTANCEMAX)
+                totalForce += rand() * G * solution.mass * otherSolution.mass * dist / distanceNormalized
+            end
+            display(solution.mass)
+            acceleration = ceil(Int, totalForce / solution.mass) # 
+        end
 
         # INDEPENDENT MOVEMENT OPERATOR
         localSearch.(costFunction, solutionVector)
