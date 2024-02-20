@@ -1,5 +1,6 @@
 # Collection of functions used to initialize the problem
-using Random
+# from standard library
+using Random # for randperm
 
 #= 
 1. import data
@@ -31,13 +32,7 @@ Gives a structured object with mass, position, velocity, and acceleration.
 mutable struct Solution
     mass         :: Float64
     position     :: Vector
-    velocity     :: Union{Float64, Int}
-    function Solution(tour :: Vector)
-        mass     = 0
-        position = tour
-        velocity = rand() #TODO: change upper bound to maximum search space distance
-        return new(mass, position, velocity)
-    end
+    velocity     :: Int
 end
 
 """
