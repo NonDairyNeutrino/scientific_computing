@@ -52,6 +52,7 @@ function main()
     # INITIALIZE
     ## initialize population
     tsp            = Problem(#= DATAFILEPATH =#)
+    DISTANCEMAX    = tsp.dimension - 1
     costFunction   = cost(tsp.matrix) # returns a function
     tourVector     = generateInitialPopulation(AGENTCOUNT, tsp.dimension)
     solutionVector = Solution.(tourVector) # velocity is randomly initialized upon Solution creation
