@@ -33,6 +33,7 @@ mutable struct Solution
     mass         :: Float64
     position     :: Vector
     velocity     :: Int
+    acceleration :: Int
 end
 
 """
