@@ -12,6 +12,19 @@ function swap(vec :: Vector, i :: Int, j :: Int) :: Vector
 end
 
 """
+    swap!(vec :: Vector, i :: Int, j :: Int) :: Vector
+
+In-place swap the elements of a vector
+"""
+function swap!(vec :: Vector, i :: Int, j :: Int) :: Vector
+    elemi = vec[i]
+    elemj = vec[j]
+    vec[i] = elemj
+    vec[j] = elemi
+    return vec
+end
+
+"""
     getNeighborhood(tour :: Vector{Int}; keep = false :: Bool) :: Vector{Vector{Int}}
 
 Gives the collection of tours 
