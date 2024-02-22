@@ -68,7 +68,7 @@ function main()
     for step in 1:MAXSTEPS
         # DEPENDENT MOVEMENT OPERATOR
         G = GVECTOR[step]
-        K = INITIALK # TODO: update K
+        K = ceil(Int, INITIALK - (INITIALK / MAXSTEPS) * step)
         Kbest = sort(solutionVector; by = (solution -> solution.mass), rev = true)[1:K]
         # calculate dependent movement length (gravitational acceleration) for each agent
         for (index, solution) in Kbest
