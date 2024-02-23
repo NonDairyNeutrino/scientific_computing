@@ -65,6 +65,10 @@ int main(){
 
 
     // free all used memory
+
+    cudaHandleError(cudaFree(device_STSPAdjacencyMatrix));
+    cudaHandleError(cudaFree(device_ATSPAdjacencyMatrix));
+
     free(STSPAdjacencyMatrix);
     free(ATSPAdjacencyMatrix);
 
