@@ -1,21 +1,28 @@
 
+#include "cuda_runtime.h"
+#include "device_launch_parameters.h"
+
+#include <stdio.h>
+
+
+#include <iostream>
 #include <string>
 #include <string.h>
 using namespace std;
 
 
-void getSTSPAdjacencyMatrix(double* matrix, string location, int problemSize){}
+void getSTSPAdjacencyMatrix(double* matrix, string location, int problemSize) {}
 
-void getATSPAdjacencyMatrix(int* matrix, string location, int nullKey){}
+void getATSPAdjacencyMatrix(int* matrix, string location, int nullKey) {}
 
 void cudaHandleError(cudaError_t error) {
-    if(error != cudaSuccess){
+    if (error != cudaSuccess) {
         cout << "Failed to perform device operation: " << cudaGetErrorString(error);
     }
 }
 
-int main(){
-    
+int main() {
+
 
     // for a given problem size
     int STSPproblemSize = 1400; // number of cities
@@ -29,22 +36,22 @@ int main(){
     int nullKey = 100000000;
 
     // populate an adjacency matrix of the problem
-    double* STSPAdjacencyMatrix = (double*) malloc(sizeof(double) * STSPproblemSize * STSPproblemSize);
-    int* ATSPAdjacencyMatrix = (int*) malloc(sizeof(int) * ATSPproblemSize * ATSPproblemSize);
+    double* STSPAdjacencyMatrix = (double*)malloc(sizeof(double) * STSPproblemSize * STSPproblemSize);
+    int* ATSPAdjacencyMatrix = (int*)malloc(sizeof(int) * ATSPproblemSize * ATSPproblemSize);
 
-    
+
     getSTSPAdjacencyMatrix(STSPAdjacencyMatrix, STSPLocation, STSPproblemSize);
     getATSPAdjacencyMatrix(ATSPAdjacencyMatrix, ATSPLocation, nullKey);
 
 
     // create coppies of the problems on the device
     double* device_STSPAdjacencyMatrix;
-    cudaHandleError(cudaMalloc(&device_STSPAdjacencyMatrix, sizeof(STSPAdjacencyMatrix)));
-    cudaHandleError(cudaMemcpy(device_STSPAdjacencyMatrix, STSPAdjacencyMatrix, cudaMemcpyHostToDevice));
+    cudaHandleError(cudaMalloc(&device_STSPAdjacencyMatrix, sizeof(double) * STSPproblemSize * STSPproblemSize));
+    cudaHandleError(cudaMemcpy(device_STSPAdjacencyMatrix, STSPAdjacencyMatrix, sizeof(double) * STSPproblemSize * STSPproblemSize, cudaMemcpyHostToDevice));
 
     int* device_ATSPAdjacencyMatrix;
-    cudaHandleError(cudaMalloc(&device_ATSPAdjacencyMatrix, sizeof(ATSPAdjacencyMatrix)));
-    cudaHandleError((device_ATSPAdjacencyMatrix, ATSPAdjacencyMatrix, cudaMemcpyHostToDevice));
+    cudaHandleError(cudaMalloc(&device_ATSPAdjacencyMatrix, sizeof(int) * ATSPproblemSize * ATSPproblemSize));
+    cudaHandleError(cudaMemcpy(device_ATSPAdjacencyMatrix, ATSPAdjacencyMatrix, sizeof(int) * ATSPproblemSize * ATSPproblemSize, cudaMemcpyHostToDevice));
 
 
     // allocate pheromone matrix on device
@@ -65,7 +72,6 @@ int main(){
 
 
     // free all used memory
-
     cudaHandleError(cudaFree(device_STSPAdjacencyMatrix));
     cudaHandleError(cudaFree(device_ATSPAdjacencyMatrix));
 
