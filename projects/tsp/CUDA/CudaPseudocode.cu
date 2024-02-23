@@ -15,6 +15,111 @@ void getSTSPAdjacencyMatrix(double* matrix, string location, int problemSize) {}
 
 void getATSPAdjacencyMatrix(int* matrix, string location, int nullKey) {}
 
+
+void ACOsolveSTSP(int problemSize, string location, int numAnts, int numIterations){
+    // populate an adjacency matrix of the problem
+    double* adjacencyMatrix = (double*)malloc(sizeof(double) * STSPproblemSize * STSPproblemSize);
+
+
+    getSTSPAdjacencyMatrix(adjacencyMatrix, location, problemSize);
+
+
+    // create coppies of the problems on the device
+    double* device_adjacencyMatrix;
+    cudaHandleError(cudaMalloc(&device_adjacencyMatrix, sizeof(double) * problemSize * problemSize));
+    cudaHandleError(cudaMemcpy(device_adjacencyMatrix, adjacencyMatrix, sizeof(double) * problemSize * problemSize, cudaMemcpyHostToDevice));
+
+
+
+    // allocate pheromone matrix on host and device
+    double* pheromoneMatrix = (double*)malloc(sizeof(double) * problemSize * problemSize);
+
+    double* device_pheromoneMatrix;
+    cudaHandleError(cudaMalloc(&device_pheromoneMatrix, sizeof(double) * problemSize * problemSize));
+
+
+
+    // allocate ant histories on matrix
+    int* antHistories = (int*)malloc(sizeof(int) * numAnts * problemSize);
+
+    int* device_antHistories;
+    cudaHandleError(cudaMalloc(&device_antHistories, sizeof(int) * numAnts * problemSize));
+
+    // invoke kernel
+
+    // check for kernel errors (immediately after kernel execution)
+
+
+
+    // get ant histories and find best result
+
+
+
+
+    // free all used memory
+
+        // device
+    cudaHandleError(cudaFree(device_adjacencyMatrix));
+    cudaHandleError(cudaFree(device_pheromoneMatrix));
+    cudaHandleError(cudaFree(device_antHistories));
+
+        // host
+    free(adjacencyMatrix);
+    free(pheromoneMatrix);
+    free(antHistories);
+}
+
+void ACOsolveATSP(int problemSIze, string location, int numAnts, int numIterations, int nullKey){
+    // populate an adjacency matrix of the problem
+    int* adjacencyMatrix = (int*)malloc(sizeof(int) * problemSize * problemSize);
+
+    getATSPAdjacencyMatrix(adjacencyMatrix, location, nullKey);
+
+
+    // create coppies of the problems on the device
+    int* device_adjacencyMatrix;
+    cudaHandleError(cudaMalloc(&device_adjacencyMatrix, sizeof(int) * problemSize * problemSize));
+    cudaHandleError(cudaMemcpy(device_adjacencyMatrix, adjacencyMatrix, sizeof(int) * problemSize * problemSize, cudaMemcpyHostToDevice));
+
+
+    // allocate pheromone matrix on host and device
+    double* pheromoneMatrix = (double*)malloc(sizeof(double) * problemSize * problemSize);
+    
+    double* device_pheromoneMatrix;
+    cudaHandleError(cudaMalloc(&device_pheromoneMatrix, sizeof(double) * problemSize * problemSize));
+
+
+    // allocate ant histories on matrix
+    int* antHistories = (int*)malloc(sizeof(int) * numAnts * problemSize);
+
+    int* device_antHistories;
+    cudaHandleError(cudaMalloc(&device_antHistories, sizeof(int) * numAnts * problemSize));
+
+    // invoke kernel
+
+    // check for kernel errors (immediately after kernel execution)
+
+
+
+    // get ant histories and find best result
+    
+
+
+
+    // free all used memory
+
+        // device
+    cudaHandleError(cudaFree(device_ATSPAdjacencyMatrix));
+    cudaHandleError(cudaFree(device_ATSPpheromoneMatrix));
+    cudaHandleError(cudaFree(device_ATSPAntHistories));
+
+        // host
+    free(ATSPAdjacencyMatrix);
+    free(ATSPpheromoneMatrix);
+    free(ATSPAntHistories);
+
+}
+
 void cudaHandleError(cudaError_t error) {
     if (error != cudaSuccess) {
         cout << "Failed to perform device operation: " << cudaGetErrorString(error);
@@ -41,68 +146,7 @@ int main() {
     // and possibly some null key for data integrity
     int nullKey = 100000000;
 
-    // populate an adjacency matrix of the problem
-    double* STSPAdjacencyMatrix = (double*)malloc(sizeof(double) * STSPproblemSize * STSPproblemSize);
-    int* ATSPAdjacencyMatrix = (int*)malloc(sizeof(int) * ATSPproblemSize * ATSPproblemSize);
-
-
-    getSTSPAdjacencyMatrix(STSPAdjacencyMatrix, STSPLocation, STSPproblemSize);
-    getATSPAdjacencyMatrix(ATSPAdjacencyMatrix, ATSPLocation, nullKey);
-
-
-    // create coppies of the problems on the device
-    double* device_STSPAdjacencyMatrix;
-    cudaHandleError(cudaMalloc(&device_STSPAdjacencyMatrix, sizeof(double) * STSPproblemSize * STSPproblemSize));
-    cudaHandleError(cudaMemcpy(device_STSPAdjacencyMatrix, STSPAdjacencyMatrix, sizeof(double) * STSPproblemSize * STSPproblemSize, cudaMemcpyHostToDevice));
-
-    int* device_ATSPAdjacencyMatrix;
-    cudaHandleError(cudaMalloc(&device_ATSPAdjacencyMatrix, sizeof(int) * ATSPproblemSize * ATSPproblemSize));
-    cudaHandleError(cudaMemcpy(device_ATSPAdjacencyMatrix, ATSPAdjacencyMatrix, sizeof(int) * ATSPproblemSize * ATSPproblemSize, cudaMemcpyHostToDevice));
-
-
-    // allocate pheromone matrix on host and device
-    double* STSPpheromoneMatrix = (double*)malloc(sizeof(double) * STSPproblemSize * STSPproblemSize);
-
-    double* device_STSPpheromoneMatrix;
-    cudaHandleError(cudaMalloc(&device_STSPpheromoneMatrix, sizeof(double) * STSPproblemSize * STSPproblemSize));
-
-
-    double* ATSPpheromoneMatrix = (double*)malloc(sizeof(double) * ATSPproblemSize * ATSPproblemSize);
-    
-    double* device_ATSPpheromoneMatrix;
-    cudaHandleError(cudaMalloc(&device_ATSPpheromoneMatrix, sizeof(double) * ATSPproblemSize * ATSPproblemSize));
-
-
-    // allocate ant histories on matrix
-
-
-    // invoke kernel
-
-    // check for kernel errors (immediately after kernel execution)
-
-
-
-    // get ant histories and find best result
-
-
-
-
-    // free all used memory
-
-        // device
-    cudaHandleError(cudaFree(device_STSPAdjacencyMatrix));
-    cudaHandleError(cudaFree(device_ATSPAdjacencyMatrix));
-
-    cudaHandleError(cudaFree(device_STSPpheromoneMatrix));
-    cudaHandleError(cudaFree(device_ATSPpheromoneMatrix));
-
-
-        // host
-    free(STSPAdjacencyMatrix);
-    free(ATSPAdjacencyMatrix);
-
-    free(STSPpheromoneMatrix);
-    free(ATSPpheromoneMatrix);
-
+    ACOsolveSTSP(STSPproblemSize, STSPLocation, numAnts, numIterations);
+    ACOsolveATSP(ATSPproblemSize, ATSPLocation, numAnts, numIterations, nullKey);
 
 }
