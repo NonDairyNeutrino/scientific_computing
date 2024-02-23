@@ -32,6 +32,12 @@ int main() {
     string STSPLocation = "fl1400.tsp";
     string ATSPLocation = "ftv64.atsp";
 
+    // for a given number of ants
+    int numAnts = 10000;
+
+    // run a given number of iterations
+    int numIterations = 1000;
+
     // and possibly some null key for data integrity
     int nullKey = 100000000;
 
@@ -54,7 +60,17 @@ int main() {
     cudaHandleError(cudaMemcpy(device_ATSPAdjacencyMatrix, ATSPAdjacencyMatrix, sizeof(int) * ATSPproblemSize * ATSPproblemSize, cudaMemcpyHostToDevice));
 
 
-    // allocate pheromone matrix on device
+    // allocate pheromone matrix on host and device
+    double* STSPpheromoneMatrix = (double*)malloc(sizeof(double) * STSPproblemSize * STSPproblemSize);
+
+    double* device_STSPpheromoneMatrix;
+    cudaHandleError(cudaMalloc(&device_STSPpheromoneMatrix, sizeof(double) * STSPproblemSize * STSPproblemSize));
+
+
+    double* ATSPpheromoneMatrix = (double*)malloc(sizeof(double) * ATSPproblemSize * ATSPproblemSize);
+    
+    double* device_ATSPpheromoneMatrix;
+    cudaHandleError(cudaMalloc(&device_ATSPpheromoneMatrix, sizeof(double) * ATSPproblemSize * ATSPproblemSize));
 
 
     // allocate ant histories on matrix
@@ -72,11 +88,21 @@ int main() {
 
 
     // free all used memory
+
+        // device
     cudaHandleError(cudaFree(device_STSPAdjacencyMatrix));
     cudaHandleError(cudaFree(device_ATSPAdjacencyMatrix));
 
+    cudaHandleError(cudaFree(device_STSPpheromoneMatrix));
+    cudaHandleError(cudaFree(device_ATSPpheromoneMatrix));
+
+
+        // host
     free(STSPAdjacencyMatrix);
     free(ATSPAdjacencyMatrix);
+
+    free(STSPpheromoneMatrix);
+    free(ATSPpheromoneMatrix);
 
 
 }
