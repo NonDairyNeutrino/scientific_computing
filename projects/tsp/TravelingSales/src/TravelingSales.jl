@@ -84,15 +84,16 @@ function main()
             solution.acceleration = ceil(Int, totalForce / solution.mass)
         end
         ## MTMNS
-        newSolution = Kbest[1] # ????, literature just says "starting solution"
-        for solution in 1:Kbest
+        for solution in Kbest
+            # newSolution = deepcopy(solution)
+            for otherSolution in Kbest
             ### SMNS
-            for j in 1:solution.acceleration
-                # swap that many times
-                
+                for i in 1:otherSolution.acceleration # what if acceleration > distance?
+                    # small move newSolution towards otherSolution
+                    index = findall(z -> z == solution.position[i], otherSolution.position)[1]
+                    swap!(solution.position, i, index)
+                end
             end
-
-            newSolution = SMNS(newSolution, solution.position, solution.acceleration)
         end
 
         # INDEPENDENT MOVEMENT OPERATOR
