@@ -71,7 +71,7 @@ function main()
         K = ceil(Int, INITIALK - (INITIALK / MAXSTEPS) * step)
         Kbest = sort(solutionVector; by = (solution -> solution.mass), rev = true)[1:K]
         # calculate dependent movement length (gravitational acceleration) for each agent
-        for (index, solution) in Kbest
+        for solution in Kbest
             totalForce = 0
             for otherSolution in Kbest
                 # GRAVITY
@@ -81,8 +81,18 @@ function main()
                 distanceNormalized = 0.5 + dist / (2 * DISTANCEMAX)
                 totalForce += rand() * G * solution.mass * otherSolution.mass * dist / distanceNormalized
             end
-            display(solution.mass)
-            acceleration = ceil(Int, totalForce / solution.mass) # 
+            solution.acceleration = ceil(Int, totalForce / solution.mass)
+        end
+        ## MTMNS
+        newSolution = Kbest[1] # ????, literature just says "starting solution"
+        for solution in 1:Kbest
+            ### SMNS
+            for j in 1:solution.acceleration
+                # swap that many times
+                
+            end
+
+            newSolution = SMNS(newSolution, solution.position, solution.acceleration)
         end
 
         # INDEPENDENT MOVEMENT OPERATOR
