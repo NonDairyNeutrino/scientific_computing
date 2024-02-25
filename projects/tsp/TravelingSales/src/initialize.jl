@@ -57,5 +57,5 @@ end
 Generate the initial collection of agents.
 """
 function generateInitialPopulation(agentCount :: Int, dimension :: Int) :: Vector{Vector{Int}}
-    return [randperm(dimension) for i in 1:agentCount]
+    return randperm.(fill(dimension, agentCount))
 end
