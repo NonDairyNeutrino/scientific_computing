@@ -26,7 +26,12 @@ function distance(x :: Vector, y :: Vector) :: Int
     end
 end
 
-function main()
+"""
+    main(args :: Vector) :: Tuple{Vector{Int}, Int}
+
+Tries to give an optimal solution to the Traveling Sales Problem
+"""
+function main(args :: Vector) :: Tuple{Vector{Int}, Int}
     # INITIALIZE
     # generate initial population (collection of agents)
     # LOOP BODY
@@ -40,10 +45,15 @@ function main()
     # else, loop
 
     # PARAMETERS
-    MAXSTEPS   = 200 # 200 from literature
-    AGENTCOUNT = 10  # 10 from literature
+    if isempty(args)
     DATAFILEPATH = "data/bays29.tsp"
-    INITIALK   = 5   # 5 from literature
+        MAXSTEPS     = 200 # 200 from literature
+        AGENTCOUNT   = 10  # 10 from literature
+    else
+        DATAFILEPATH         = args[1]
+        MAXSTEPS, AGENTCOUNT = parse.(Int, args[2:3])
+    end
+    INITIALK   = ceil(Int, 0.5 * AGENTCOUNT) # 5 from literature
     
     INITIALG   = 0.5 # 0.5 from literature
     FINALG     = 0.1 # 0.1 from literature
