@@ -35,22 +35,30 @@ function gravity(maxDistance :: Int, G) :: Function
     (solution, otherSolution) -> gravity(maxDistance, G, solution, otherSolution)
 end
 
-function setAcceleration!(KbestVector :: Vector{Solution}, gravityFunction :: Function, solution :: Solution)
-    totalForce = sum(gravityFunction(solution, KbestSolution) for KbestSolution in KbestVector)
+"""
+    acceleration(gravityFunction :: Function, solution :: Solution, otherSolution :: Solution) :: Int
+
+Gives the gravitational acceleration (i.e. dependent movement length) of one solution towards another.
+"""
+function acceleration(gravityFunction :: Function, solution :: Solution, otherSolution :: Solution) :: Int
+    force = gravityFunction(solution, otherSolution)
+    mass  = solution.mass != 0 ? solution.mass : 0.001 # 0.001 is arbitrary
     try
-        solution.acceleration = solution.mass != 0 ? ceil(Int, totalForce / solution.mass) : 0 # sometimes throws runtime error but don't know why
+        return ceil(Int, force / mass) # sometimes throws runtime error but don't know why
     catch e
-        @error "Something went wrong, aborting.  Solution on crash: $solution"
+        @error "Something went wrong, aborting. Solutions:
+        solution: $solution
+        otherSolution: $otherSolution"
         display(e)
-        exit(1)
+        exit()
     end
 end
 
 """
-    totalGravity(KbestVector :: Vector, gravityFunction :: Function) :: Function
+    acceleration(gravityFunction :: Function) :: Function
 
-TBW
+Gives a function to calculate the gravitational acceleration of one solution towards another.
 """
-function setAcceleration!(KbestVector :: Vector, gravityFunction :: Function) :: Function
-    return solution -> setAcceleration!(KbestVector, gravityFunction, solution)
+function acceleration(gravityFunction :: Function) :: Function
+    return (solution, otherSolution) -> acceleration(gravityFunction, solution, otherSolution)
 end
