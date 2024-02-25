@@ -92,7 +92,12 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
                 distanceNormalized = 0.5 + dist / (2 * DISTANCEMAX)
                 totalForce += rand() * G * solution.mass * otherSolution.mass * dist / distanceNormalized
             end
-            solution.acceleration = ceil(Int, totalForce / solution.mass)
+                try
+                    solution.acceleration = ceil(Int, totalForce / solution.mass) # sometimes throws runtime error but don't know why
+                catch e
+                    display(e)
+                    @error "Something went wrong.  Variables: mass = $(solution.mass), zero distance: $(distance == 0), totalForce: $totalForce"
+                end
         end
         ## MTMNS
         for solution in solutionVector
