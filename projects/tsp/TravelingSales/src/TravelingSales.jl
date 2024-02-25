@@ -109,6 +109,14 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
 
         # INDEPENDENT MOVEMENT OPERATOR
         localSearch.(costFunction, solutionVector)
+
+        # UPDATE MASSES
+        fitnessVector  = fitnessFunction.(getproperty.(solutionVector, :position))
+        best           = minimum(fitnessVector)
+        worst          = maximum(fitnessVector)
+        tempMassVector = (fitnessVector .- worst) / (best - worst)
+        totalMass      = sum(tempMassVector)
+        setproperty!.(solutionVector, :mass, tempMassVector / totalMass) # intialize solution mass
     end
 
     bestSolution = argmax(solution -> solution.mass, solutionVector)
