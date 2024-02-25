@@ -43,7 +43,7 @@ function tourWeight(edgeWeightMatrix :: Matrix, solution :: Vector) :: Float64
 end
 
 """
-    cost(problemMatrix :: Matrix) :: Function
+    tourWeight(problemMatrix :: Matrix) :: Function
 
 Gives a fitness function for a given problem.
 """
