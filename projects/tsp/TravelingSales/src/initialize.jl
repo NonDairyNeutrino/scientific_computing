@@ -2,23 +2,14 @@
 # from standard library
 using Random # for randperm
 
-#= 
-1. import data
-2. parse data into adjacency matrix
-3. generate initial population == generate permutations of cities, city = index
-=#
-
 """
     Problem
 
 Gives a structured representation of the Traveling Sales Problem
 """
 struct Problem
-    # import problem instance
-    # parse into weighted adjacency matrix
     matrix    :: Matrix{T} where T <: Real
     dimension :: Int
-    # TODO: change to take file path of data file
     function Problem(matrix = rand(10,10) :: Matrix{T} where T <: Real)
         return new(matrix, size(matrix, 1))
     end
@@ -37,12 +28,18 @@ mutable struct Solution
 end
 
 """
-    cost(problemMatrix :: Matrix, solution :: Vector) :: Float64
+    tourWeight(problemMatrix :: Matrix, solution :: Vector) :: Float64
 
-Gives the cost of traveling the given tour.
+Gives the weight of traveling the given tour.
 """
-function cost(problemMatrix :: Matrix, solution :: Vector) :: Float64
-    return sum(problemMatrix[solution[i], solution[i+1]] for i in 1 : (length(solution) - 1)) + problemMatrix[solution[end], solution[1]]
+function tourWeight(edgeWeightMatrix :: Matrix, solution :: Vector) :: Float64
+    goBackHomeWeight = edgeWeightMatrix[solution[end], solution[1]]
+    tourWeight = 0
+    for i in 1 : (length(solution) - 1)
+        edgeWeight = edgeWeightMatrix[solution[i], solution[i+1]]
+        tourWeight += edgeWeight
+    end
+    return tourWeight + goBackHomeWeight
 end
 
 """
@@ -50,8 +47,8 @@ end
 
 Gives a fitness function for a given problem.
 """
-function cost(problemMatrix :: Matrix) :: Function
-    return solution -> cost(problemMatrix, solution)
+function tourWeight(problemMatrix :: Matrix) :: Function
+    return solution -> tourWeight(problemMatrix, solution)
 end
 
 """

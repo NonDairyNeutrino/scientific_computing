@@ -31,7 +31,7 @@ end
 
 Tries to give an optimal solution to the Traveling Sales Problem
 """
-function main(args :: Vector) :: Tuple{Vector{Int}, Int}
+function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
     # INITIALIZE
     # generate initial population (collection of agents)
     # LOOP BODY
@@ -63,7 +63,7 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
     # INITIALIZE
     ## initialize population
     tsp            = Problem(parseProblem(DATAFILEPATH))
-    DISTANCEMAX    = tsp.dimension - 1
+    DISTANCEMAX    = tsp.dimension - 1 # max distance is the max swaps needed to get from one to another
     fitnessFunction= tourWeight(tsp.matrix)
     tourVector     = generateInitialPopulation(AGENTCOUNT, tsp.dimension)
     solutionVector = Solution.(0, tourVector, ceil.(Int, rand(Uniform(0, DISTANCEMAX), length(tourVector))), 0) # velocity is randomly initialized upon Solution creation
@@ -89,7 +89,7 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
                 dist = distance(solution.position, otherSolution.position)
                 # above is the TSP specific result of using transposition 
                 # as the small-move operator as defined in literature
-                distanceNormalized = 0.5 + dist / (2 * DISTANCEMAX)
+                    distanceNormalized = 0.5 + dist / (2 * DISTANCEMAX) # 0.5 for small offset
                 totalForce += rand() * G * solution.mass * otherSolution.mass * dist / distanceNormalized
             end
                 try
@@ -113,7 +113,7 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
         end 
 
         # INDEPENDENT MOVEMENT OPERATOR
-        localSearch.(costFunction, solutionVector)
+        localSearch.(fitnessFunction, solutionVector)
 
         # UPDATE MASSES
         fitnessVector  = fitnessFunction.(getproperty.(solutionVector, :position))
@@ -121,10 +121,10 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
         worst          = maximum(fitnessVector)
         tempMassVector = (fitnessVector .- worst) / (best - worst)
         totalMass      = sum(tempMassVector)
-        setproperty!.(solutionVector, :mass, tempMassVector / totalMass) # intialize solution mass
+        setproperty!.(solutionVector, :mass, tempMassVector / totalMass)
     end
 
     bestSolution = argmax(solution -> solution.mass, solutionVector)
-    return bestSolution.position, fitnessFunction(bestSolution.position)
+    return bestSolution.position, tourWeight(tsp.matrix, bestSolution.position)
 end
 end # module TravelingSales
