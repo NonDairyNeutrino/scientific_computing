@@ -10,6 +10,7 @@ export main
 include("parsetsp.jl")
 include("initialize.jl")
 include("searchspace.jl")
+include("physics.jl")
 
 """
     main(args :: Vector) :: Tuple{Vector{Int}, Int}
@@ -31,7 +32,7 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
 
     # PARAMETERS
     if isempty(args)
-    DATAFILEPATH = "data/bays29.tsp"
+        DATAFILEPATH = "data/bays29.tsp"
         MAXSTEPS     = 200 # 200 from literature
         AGENTCOUNT   = 10  # 10 from literature
     else
@@ -53,36 +54,20 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
     tourVector     = generateInitialPopulation(AGENTCOUNT, tsp.dimension)
     solutionVector = Solution.(0, tourVector, ceil.(Int, rand(Uniform(0, DISTANCEMAX), length(tourVector))), 0) # velocity is randomly initialized upon Solution creation
     ## initialize masses
-    fitnessVector  = fitnessFunction.(getproperty.(solutionVector, :position))
-    best           = minimum(fitnessVector) # because we want to minimize the fitness/tourWeight
-    worst          = maximum(fitnessVector)
-    tempMassVector = (fitnessVector .- worst) / (best - worst)
-    totalMass      = sum(tempMassVector)
-    setproperty!.(solutionVector, :mass, tempMassVector / totalMass) # intialize solution mass
+    setMasses!(fitnessFunction, solutionVector)
 
     # CORE
     for step in 1:MAXSTEPS
+        step % 50 == 0 ? println("step: ", step) : nothing
         # DEPENDENT MOVEMENT OPERATOR
         G = GVECTOR[step]
-        K = ceil(Int, INITIALK - (INITIALK / MAXSTEPS) * step)
+        gravityFunction = gravity(DISTANCEMAX, G)
+        K = ceil(Int, INITIALK - ((INITIALK - 1) / MAXSTEPS) * step) # goes from K to 1
         Kbest = sort(solutionVector; by = (solution -> solution.mass), rev = true)[1:K]
+        totalGravityFunction = totalGravity(Kbest, gravityFunction)
         # calculate dependent movement length (gravitational acceleration) for each agent
         for solution in solutionVector
-            totalForce = 0
-            for otherSolution in Kbest
-                # GRAVITY
-                dist = distance(solution.position, otherSolution.position)
-                # above is the TSP specific result of using transposition 
-                # as the small-move operator as defined in literature
-                    distanceNormalized = 0.5 + dist / (2 * DISTANCEMAX) # 0.5 for small offset
-                totalForce += rand() * G * solution.mass * otherSolution.mass * dist / distanceNormalized
-            end
-                try
-                    solution.acceleration = ceil(Int, totalForce / solution.mass) # sometimes throws runtime error but don't know why
-                catch e
-                    display(e)
-                    @error "Something went wrong.  Variables: mass = $(solution.mass), zero distance: $(distance == 0), totalForce: $totalForce"
-                end
+            totalGravityFunction(solution)
         end
         ## MTMNS
         for solution in solutionVector
@@ -101,12 +86,7 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
         localSearch.(fitnessFunction, solutionVector)
 
         # UPDATE MASSES
-        fitnessVector  = fitnessFunction.(getproperty.(solutionVector, :position))
-        best           = minimum(fitnessVector)
-        worst          = maximum(fitnessVector)
-        tempMassVector = (fitnessVector .- worst) / (best - worst)
-        totalMass      = sum(tempMassVector)
-        setproperty!.(solutionVector, :mass, tempMassVector / totalMass)
+        setMasses!(fitnessFunction, solutionVector)
     end
 
     bestSolution = argmax(solution -> solution.mass, solutionVector)
