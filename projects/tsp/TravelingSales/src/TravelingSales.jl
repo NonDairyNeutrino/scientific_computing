@@ -120,6 +120,6 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
     end
 
     bestSolution = argmax(solution -> solution.mass, solutionVector)
-    return bestSolution.position, costFunction(bestSolution.position)
+    return bestSolution.position, fitnessFunction(bestSolution.position)
 end
 end # module TravelingSales
