@@ -64,13 +64,13 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
     ## initialize population
     tsp            = Problem(parseProblem(DATAFILEPATH))
     DISTANCEMAX    = tsp.dimension - 1
-    fitnessFunction= tour -> 1 / cost(tsp.matrix, tour)
+    fitnessFunction= tourWeight(tsp.matrix)
     tourVector     = generateInitialPopulation(AGENTCOUNT, tsp.dimension)
     solutionVector = Solution.(0, tourVector, ceil.(Int, rand(Uniform(0, DISTANCEMAX), length(tourVector))), 0) # velocity is randomly initialized upon Solution creation
     ## initialize masses
     fitnessVector  = fitnessFunction.(getproperty.(solutionVector, :position))
-    best           = maximum(fitnessVector)
-    worst          = minimum(fitnessVector)
+    best           = minimum(fitnessVector) # because we want to minimize the fitness/tourWeight
+    worst          = maximum(fitnessVector)
     tempMassVector = (fitnessVector .- worst) / (best - worst)
     totalMass      = sum(tempMassVector)
     setproperty!.(solutionVector, :mass, tempMassVector / totalMass) # intialize solution mass
@@ -112,8 +112,8 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
 
         # UPDATE MASSES
         fitnessVector  = fitnessFunction.(getproperty.(solutionVector, :position))
-        best           = maximum(fitnessVector)
-        worst          = minimum(fitnessVector)
+        best           = minimum(fitnessVector)
+        worst          = maximum(fitnessVector)
         tempMassVector = (fitnessVector .- worst) / (best - worst)
         totalMass      = sum(tempMassVector)
         setproperty!.(solutionVector, :mass, tempMassVector / totalMass) # intialize solution mass
