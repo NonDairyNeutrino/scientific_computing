@@ -69,8 +69,8 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
     solutionVector = Solution.(0, tourVector, ceil.(Int, rand(Uniform(0, DISTANCEMAX), length(tourVector))), 0) # velocity is randomly initialized upon Solution creation
     ## initialize masses
     fitnessVector  = fitnessFunction.(getproperty.(solutionVector, :position))
-    best           = minimum(fitnessVector)
-    worst          = maximum(fitnessVector)
+    best           = maximum(fitnessVector)
+    worst          = minimum(fitnessVector)
     tempMassVector = (fitnessVector .- worst) / (best - worst)
     totalMass      = sum(tempMassVector)
     setproperty!.(solutionVector, :mass, tempMassVector / totalMass) # intialize solution mass
@@ -112,8 +112,8 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
 
         # UPDATE MASSES
         fitnessVector  = fitnessFunction.(getproperty.(solutionVector, :position))
-        best           = minimum(fitnessVector)
-        worst          = maximum(fitnessVector)
+        best           = maximum(fitnessVector)
+        worst          = minimum(fitnessVector)
         tempMassVector = (fitnessVector .- worst) / (best - worst)
         totalMass      = sum(tempMassVector)
         setproperty!.(solutionVector, :mass, tempMassVector / totalMass) # intialize solution mass
