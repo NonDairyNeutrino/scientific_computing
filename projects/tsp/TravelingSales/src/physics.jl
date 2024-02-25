@@ -35,7 +35,7 @@ function gravity(maxDistance :: Int, G) :: Function
     (solution, otherSolution) -> gravity(maxDistance, G, solution, otherSolution)
 end
 
-function totalGravity(KbestVector :: Vector{Solution}, gravityFunction :: Function, solution :: Solution)
+function setAcceleration!(KbestVector :: Vector{Solution}, gravityFunction :: Function, solution :: Solution)
     totalForce = sum(gravityFunction(solution, KbestSolution) for KbestSolution in KbestVector)
     try
         solution.acceleration = solution.mass != 0 ? ceil(Int, totalForce / solution.mass) : 0 # sometimes throws runtime error but don't know why
@@ -51,6 +51,6 @@ end
 
 TBW
 """
-function totalGravity(KbestVector :: Vector, gravityFunction :: Function) :: Function
-    return solution -> totalGravity(KbestVector, gravityFunction, solution)
+function setAcceleration!(KbestVector :: Vector, gravityFunction :: Function) :: Function
+    return solution -> setAcceleration!(KbestVector, gravityFunction, solution)
 end

@@ -60,14 +60,15 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
     for step in 1:MAXSTEPS
         step % 50 == 0 ? println("step: ", step) : nothing
         # DEPENDENT MOVEMENT OPERATOR
-        G = GVECTOR[step]
+        G               = GVECTOR[step]
         gravityFunction = gravity(DISTANCEMAX, G)
-        K = ceil(Int, INITIALK - ((INITIALK - 1) / MAXSTEPS) * step) # goes from K to 1
-        Kbest = sort(solutionVector; by = (solution -> solution.mass), rev = true)[1:K]
-        totalGravityFunction = totalGravity(Kbest, gravityFunction)
+        K               = ceil(Int, INITIALK - ((INITIALK - 1) / MAXSTEPS) * step) # goes from K to 1
+        Kbest           = sort(solutionVector; by = (solution -> solution.mass), rev = true)[1:K]
+        setAccelerationFunction! = setAcceleration!(Kbest, gravityFunction)
+
         # calculate dependent movement length (gravitational acceleration) for each agent
         for solution in solutionVector
-            totalGravityFunction(solution)
+            setAccelerationFunction!(solution)
         end
         ## MTMNS
         for solution in solutionVector
