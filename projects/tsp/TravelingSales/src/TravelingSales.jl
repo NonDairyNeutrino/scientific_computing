@@ -7,6 +7,7 @@ using Distributions # for velocity
 
 export main
 
+include("parsetsp.jl")
 include("initialize.jl")
 include("neighborhood.jl")
 include("localsearch.jl")
@@ -41,7 +42,7 @@ function main()
     # PARAMETERS
     MAXSTEPS   = 200 # 200 from literature
     AGENTCOUNT = 10  # 10 from literature
-    DATAFILEPATH = ""
+    DATAFILEPATH = "data/bays29.tsp"
     INITIALK   = 5   # 5 from literature
     
     INITIALG   = 0.5 # 0.5 from literature
@@ -51,7 +52,7 @@ function main()
 
     # INITIALIZE
     ## initialize population
-    tsp            = Problem(#= DATAFILEPATH =#)
+    tsp            = Problem(parseProblem(DATAFILEPATH))
     DISTANCEMAX    = tsp.dimension - 1
     costFunction   = cost(tsp.matrix) # returns a function
     tourVector     = generateInitialPopulation(AGENTCOUNT, tsp.dimension)
@@ -87,20 +88,20 @@ function main()
         for solution in Kbest
             # newSolution = deepcopy(solution)
             for otherSolution in Kbest
-            ### SMNS
+                ### SMNS
                 for i in 1:otherSolution.acceleration # what if acceleration > distance?
                     # small move newSolution towards otherSolution
                     index = findall(z -> z == solution.position[i], otherSolution.position)[1]
                     swap!(solution.position, i, index)
                 end
             end
-        end
+        end 
 
         # INDEPENDENT MOVEMENT OPERATOR
         localSearch.(costFunction, solutionVector)
     end
 
     bestSolution = argmax(solution -> solution.mass, solutionVector)
-    return bestSolution.position
+    return bestSolution.position, costFunction(bestSolution.position)
 end
 end # module TravelingSales

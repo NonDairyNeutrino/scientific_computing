@@ -1,3 +1,4 @@
 include("TravelingSales.jl")
 using .TravelingSales
-main() |> display
+optimum, cost = main()
+println("Optimal Tour: ", optimum, " Cost: ", cost)
