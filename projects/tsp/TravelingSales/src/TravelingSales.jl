@@ -64,7 +64,7 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
     ## initialize population
     tsp            = Problem(parseProblem(DATAFILEPATH))
     DISTANCEMAX    = tsp.dimension - 1
-    fitnessFunction= 1/cost(tsp.matrix) # returns a function
+    fitnessFunction= tour -> 1 / cost(tsp.matrix, tour)
     tourVector     = generateInitialPopulation(AGENTCOUNT, tsp.dimension)
     solutionVector = Solution.(0, tourVector, ceil.(Int, rand(Uniform(0, DISTANCEMAX), length(tourVector))), 0) # velocity is randomly initialized upon Solution creation
     ## initialize masses
