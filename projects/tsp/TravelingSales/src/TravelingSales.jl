@@ -82,7 +82,7 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
         K = ceil(Int, INITIALK - (INITIALK / MAXSTEPS) * step)
         Kbest = sort(solutionVector; by = (solution -> solution.mass), rev = true)[1:K]
         # calculate dependent movement length (gravitational acceleration) for each agent
-        for solution in Kbest
+        for solution in solutionVector
             totalForce = 0
             for otherSolution in Kbest
                 # GRAVITY
@@ -95,7 +95,7 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Int}
             solution.acceleration = ceil(Int, totalForce / solution.mass)
         end
         ## MTMNS
-        for solution in Kbest
+        for solution in solutionVector
             # newSolution = deepcopy(solution)
             for otherSolution in Kbest
                 ### SMNS
