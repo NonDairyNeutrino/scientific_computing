@@ -88,3 +88,34 @@ function distance(x :: Vector, y :: Vector) :: Int
         newy == x ? (return i) : continue
     end
 end
+
+"""
+    simpleMove!(solution :: Solution, targetSolution :: Solution, iml :: Int) :: Nothing
+
+Moves a solution toward a target for a given dependent movement length.
+"""
+function simpleMove!(solution :: Solution, targetSolution :: Solution, dml :: Int) :: Nothing
+    for i in 1 : dml # what if acceleration > distance?
+        # small move solution towards KBestSolution
+
+        index = findall(z -> z == targetSolution.position[i], solution.position)[1]
+        swap!(solution.position, i, index)
+    end
+    return
+end
+
+"""
+    multiTargetMove(solution :: Solution, targetSolutionVector :: Vector{Solution}) :: Nothing
+
+Performs 
+"""
+function multiTargetMove!(accelerationFunction :: Function, solution :: Solution, targetSolutionVector :: Vector{Solution}) :: Nothing
+    for targetSolution in targetSolutionVector
+        iml = accelerationFunction(solution, targetSolution)
+        simpleMove!(solution, targetSolution, iml)
+    end
+end
+
+function multiTargetMove!(accelerationFunction :: Function) :: Function
+    (solution, targetSolutionVector) -> multiTargetMove!(accelerationFunction, solution, targetSolutionVector)
+end
