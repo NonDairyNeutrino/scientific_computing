@@ -8,7 +8,7 @@ Gives a copy of a vector whose i-th and j-th entries are swapped.
 Also acts as the small movement operator.
 """
 function swap(vec :: Vector, i :: Int, j :: Int) :: Vector
-    newVec = deepcopy(vec)
+    newVec = copy(vec)
     newVec[i] = vec[j]
     newVec[j] = vec[i]
     return newVec
@@ -46,11 +46,11 @@ function getNeighborhood(tour :: Vector{Int}; keep = false :: Bool) :: Vector{Ve
 end
 
 """
-    localSearch(solution :: Solution) :: Solution
+    localSearch!(costFunction :: Function, solution :: Solution) :: Solution
 
 Performs a greedy local search and updates the solution.
 """
-function localSearch(costFunction :: Function, solution :: Solution) :: Solution
+function localSearch!(costFunction :: Function, solution :: Solution) :: Solution
     currentCost = costFunction(solution.position)
     IML = ceil(Int, rand() * solution.velocity) # independent movement length
     # TODO: use 2-opt for IMO and break when iteration == IML or all neighbors have been compared
@@ -71,8 +71,8 @@ end
 
 Gives a function that can be applied to a solution.
 """
-function localSearch(costFunction :: Function) :: Function
-    return solution -> localSearch(costFunction, solution)
+function localSearch!(costFunction :: Function) :: Function
+    return solution -> localSearch!(costFunction, solution)
 end
 
 """
@@ -97,7 +97,6 @@ Moves a solution toward a target for a given dependent movement length.
 function simpleMove!(solution :: Solution, targetSolution :: Solution, dml :: Int) :: Nothing
     for i in 1 : dml # what if acceleration > distance?
         # small move solution towards KBestSolution
-
         index = findall(z -> z == targetSolution.position[i], solution.position)[1]
         swap!(solution.position, i, index)
     end
