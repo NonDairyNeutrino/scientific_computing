@@ -25,7 +25,12 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
         DATAFILEPATH         = args[1]
         MAXSTEPS, AGENTCOUNT = parse.(Int, args[2:3])
     end
+
     INITIALK   = ceil(Int, 0.5 * AGENTCOUNT) # 5 from literature
+    FINALK     = 1
+    KSTEP      = (FINALK - INITIALK) / MAXSTEPS
+    KVECTOR    = ceil.(Int, INITIALK .+ KSTEP .* (1:MAXSTEPS))
+
     INITIALG   = 0.5 # 0.5 from literature
     FINALG     = 0.1 # 0.1 from literature
     GSTEP      = (FINALG - INITIALG) / MAXSTEPS    # linear decrease from literature
