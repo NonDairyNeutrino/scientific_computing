@@ -76,7 +76,7 @@ In this paper, we will discuss algorithmic solutions to the TSP, focusing on fou
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth,keepaspectratio]{TSPAlgs.PNG}
+    \includegraphics[width=\textwidth,keepaspectratio]{Images/TSPAlgs.PNG}
     \caption{Publications using different heuristic algorithms to solve TSP/VRP instances}
     \label{fig:algsOverTime}
 \end{figure}
@@ -94,7 +94,7 @@ Tabu Search is a powerful metaheuristic algorithm that can efficiently explore s
 Some of the key components of this algorithm are the neighborhood exploration, the Tabu list management, and aspiration criteria. Tabu Search begins with an initial solution and explores neighboring solutions within some neighborhood. The Tabu list then stores information about recent solutions, preventing the algorithm from revisiting them in subsequent iterations. Entries in the Tabu list can expire after a certain number of iterations if we desire. This can help promote exploration by not preventing solutions from never being revisited once new information is learned. Each iteration of the algorithm requires Tabu Search to evaluate the objective function, so that it can assess the quality of candidate solutions. In certain cases, Tabu Search may override the Tabu status of a move if it leads to a superior solution. This aspiration mechanism allows the algorithm to consider otherwise forbidden moves under favorable conditions, further promoting exploration and an ability to escape from local optima.
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.55\textwidth,keepaspectratio]{tabu.png}
+    \includegraphics[width=0.55\textwidth,keepaspectratio]{Images/tabu.png}
     \caption{A visual flowchart for the Tabu Search algorithm}
     \label{fig:algsOverTime}
 \end{figure}
@@ -140,7 +140,7 @@ Branch-and-Bound is a classic algorithmic technique that systematically partitio
 Branch-and-Bound offers a systematic and rigorous approach to solving the TSP by partitioning the solution space into manageable subspaces and pruning unpromising regions. Despite its computational overhead, Branch-and-Bound guarantees optimality or near-optimality for the TSP, making it an incredibly powerful tool. The main drawback is that the systematic analysis of many possible routes as the problem size increases can drastically impact runtime efficiency, where large instances can run for hundreds of CPU years, and thousands of real-time hours.
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.55\textwidth,keepaspectratio]{bnb.jpg}
+    \includegraphics[width=0.55\textwidth,keepaspectratio]{Images/bnb.jpg}
     \caption{The Branch-and-Bound algorithm creating branches of tours starting at node $a$}
     \label{fig:bandb}
 \end{figure}
@@ -224,7 +224,7 @@ Simulated Annealing operates iteratively, simulating the annealing process throu
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=1\textwidth,keepaspectratio]{SA.png}
+    \includegraphics[width=1\textwidth,keepaspectratio]{Images/SA.png}
     \caption{Sample of the Simulated Annealing algorithm improving a solution to the TSP over 1000 iterations}
     \label{fig:bandb}
 \end{figure}
@@ -239,7 +239,7 @@ The foundation of ACO is built with pheromone trails, ant behavior, local search
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.75\textwidth,keepaspectratio]{aco.jpg}
+    \includegraphics[width=0.75\textwidth,keepaspectratio]{Images/aco.jpg}
     \caption{Ants finding the optimal path from the start to the finish in a simple graph}
     \label{fig:ant}
 \end{figure}
