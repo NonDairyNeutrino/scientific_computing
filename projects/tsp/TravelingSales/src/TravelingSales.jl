@@ -48,27 +48,21 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
     # CORE
     for step in 1:MAXSTEPS
         step % 50 == 0 ? println("step: ", step) : nothing
-        # DEPENDENT MOVEMENT OPERATOR
-        G               = GVECTOR[step]
-        gravityFunction = gravity(DISTANCEMAX, G)
-        K               = ceil(Int, INITIALK - ((INITIALK - 1) / MAXSTEPS) * step) # goes from K to 1
+
+        G                        = GVECTOR[step]
+        gravityFunction          = gravity(DISTANCEMAX, G)
+        accelerationFunction     = acceleration(gravityFunction)
+        multiTargetMoveFunction! = multiTargetMove!(accelerationFunction)
+
+        K               = KVECTOR[step]
         KBest           = sort(solutionVector; by = (solution -> solution.mass), rev = true)[1:K]
 
-        ## MTMNS
-        for solution in solutionVector
-            # newSolution = deepcopy(solution)
-            for otherSolution in Kbest
-                ### SMNS
-                for i in 1:otherSolution.acceleration # what if acceleration > distance?
-                    # small move newSolution towards otherSolution
-                    index = findall(z -> z == solution.position[i], otherSolution.position)[1]
-                    swap!(solution.position, i, index)
-                end
-            end
-        end 
-
+        Threads.@threads for solution in solutionVector
+            # DEPENDENT MOVEMENT OPERATOR
+            multiTargetMoveFunction!(solution, KBest)
         # INDEPENDENT MOVEMENT OPERATOR
-        localSearch.(fitness, solutionVector)
+            localSearch(fitness, solution)
+        end 
 
         # UPDATE MASSES
         setMasses!(fitness, solutionVector)
