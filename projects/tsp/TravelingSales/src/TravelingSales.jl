@@ -77,4 +77,15 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
     bestSolution = argmax(solution -> solution.mass, solutionVector)
     return bestSolution.position, fitness(bestSolution.position)
 end
+
+"""
+    julia_main() :: Cint
+
+Provides support for pre-compilation when compiled with PackageCompiler.
+"""
+function julia_main() :: Cint
+    optimum, cost = main(ARGS)
+    println("Optimal Tour: ", optimum, " Cost: ", cost)
+    return 0
+end
 end # module TravelingSales
