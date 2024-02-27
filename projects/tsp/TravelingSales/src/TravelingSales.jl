@@ -65,7 +65,7 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
             multiTargetMoveFunction!(solution, KBest)
         end 
 
-        #= Threads.@threads  =#for solution in solutionVector
+        Threads.@threads for solution in solutionVector
             # INDEPENDENT MOVEMENT OPERATOR
             localSearchFunction!(solution)
         end
