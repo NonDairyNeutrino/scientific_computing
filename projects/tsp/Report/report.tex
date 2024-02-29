@@ -37,7 +37,7 @@
 \bibliographystyle{unsrt}
 
 % =======TITLE=======
-\title{\vspace*{-0.625in}CS 565: Scientific Computing \\ Project 2: The generation of Heuristic Solutions to Asymmetric and Symmetric Traveling Salesman Problems using Ant Colony Optimization\vspace*{-0.25in}}
+\title{\vspace*{-0.625in}CS 565: Scientific Computing \\ Project 2: The generation of Heuristic Solutions to Asymmetric and Symmetric Traveling Salesman Problems using Ant Colony Optimization and Discrete Gravitational Search\vspace*{-0.25in}}
 \author{Nathan Chapman, Hunter Lawrence, Andrew Struthers}
 \date{\today}
 
@@ -144,75 +144,119 @@ Pseudocode for the execution of this algorithm can be seen below
 \end{algorithm}
 \newpage
 
-\section*{The Gravitational Search Algorithm}
+\section{The Gravitational Search Algorithm (GSA)}
 
-            The Gravitational Search Algorithm (GSA) seeks to create an analog between the evolution and convergence often found in evolutionary algorithms and the model of Newtonian gravitation.  The methods used to simulate systems under the influence of gravitational interaction are well posed and are structured in such a way that creating this analogy is straightforward.
-            
-            Gravitational simulations require an initial state of the system from which time-evolution can begin and evolve in time indefinitely; these are called \emph{initial-value problems}.  As such, the algorithm and analog proposed in literature\cite{GSA}, suggests the initial state of the physical system (the positions of the masses) be chosen randomly (much like a random initial population in evolutionary algorithms).  To makes the analogy explicit, \textbf{we interpret a solution to the real problem (i.e. the one we are trying to optimize) as the position of a mass}.  For example, given an initial guess of tour $T$ through a collection of $N$ cities $c^i$ in the traveling salesman problem $T = \{c^1, c^2, \ldots, c^N\}$, the analogous position of the corresponding mass (which itself is determined by the fitness of the solution) is $x = T = \{c^1, c^2, \ldots, c^N\}$.  While an randomly initialized state can yield benefits, especially if little to no information is known about the search space, ``pre-processing`` or initial exploration of the space of solutions could lead to realizing patterns of ``good'' starting points.
+    \subsection{The Real-Valued GSA}
 
-            Once the initial positions (agents) are chosen, and denoting the fitness of agent $m^i$ at time step $k$ as $\mathrm{fit}_k^i$, define
+        The Gravitational Search Algorithm (GSA) seeks to create an analog between the evolution and convergence often found in evolutionary algorithms and the model of Newtonian gravitation.  The methods used to simulate systems under the influence of gravitational interaction are well posed and are structured in such a way that creating this analogy is straightforward.
+        
+        Gravitational simulations require an initial state of the system from which time-evolution can begin and evolve in time indefinitely; these are called \emph{initial-value problems}.  As such, the algorithm and analog proposed in literature\cite{GSA}, suggests the initial state of the physical system (the positions of the masses) be chosen randomly (much like a random initial population in evolutionary algorithms).  To makes the analogy explicit, \textbf{we interpret a solution to the real problem (i.e. the one we are trying to optimize) as the position of a mass}.  For example, given an initial guess of tour $T$ through a collection of $N$ cities $c^i$ in the traveling salesman problem $T = \{c^1, c^2, \ldots, c^N\}$, the analogous position of the corresponding mass (which itself is determined by the fitness of the solution) is $x = T = \{c^1, c^2, \ldots, c^N\}$.  While an randomly initialized state can yield benefits, especially if little to no information is known about the search space, ``pre-processing`` or initial exploration of the space of solutions could lead to realizing patterns of ``good'' starting points.
 
-            \begin{subequations}
-                \begin{equation}
-                    \mathrm{best}_k = \min_{j \in \{1, \ldots, N\}} \mathrm{fit}_k^j
-                \end{equation}
-                \begin{equation}
-                    \mathrm{worst}_k = \max_{j \in \{1, \ldots, N\}} \mathrm{fit}_k^j.
-                \end{equation}
-            \end{subequations}
+        Once the initial positions (known as agents) are chosen, and denoting the fitness of agent $m^i$ at time step $k$ as $\mathrm{fit}_k^i$, define
 
-            Consider a collection of $N$ masses $\{m^1, m^2, \ldots, m^N\}$ at the $k$-th time step defined by 
-            
+        \begin{subequations}
             \begin{equation}
-                m_k^i = \frac{\mathrm{fit}_k^i - \mathrm{worst}_k}{\mathrm{best}_k- \mathrm{worst}_k}
+                \mathrm{best}_k = \min_{j \in \{1, \ldots, N\}} \mathrm{fit}_k^j
             \end{equation}
-            
-            where the $i$-th mass $m^i$ has position $x^i$ and velocity $v^i$, each in $n$ dimensions.  The gravitational force $F^{ij}$ acting on mass $m^i$ from mass $m^j$ is \emph{\underline{similar} to} the Newtonian Gravitational force as 
-
             \begin{equation}
-                F_k^{ij} = \frac{G_k m_k^i m_k^j}{R_k^{ij} + \varepsilon} \left(x_k^j - x_k^i \right)
+                \mathrm{worst}_k = \max_{j \in \{1, \ldots, N\}} \mathrm{fit}_k^j.
             \end{equation}
+        \end{subequations}
 
-            where $G_k = G_0 e^{-\alpha t_k /T}$, and $G_0, \alpha$, and $T$ are tuning parameters, is the universal gravitational constant, $R^{ij}$ is the Euclidean-distance between mass $m^i$ and mass $m^j$ given by, and $\varepsilon$ is some small constant.  The discrepancy between this model and that of traditional Newtonian gravitational mechanics is that in the latter, the dependence of the distance between the masses is squared (i.e. $\left(R^{ij}\right)^2$), rather linear (i.e. $R^{ij}$); the linear dependence given here is a note that more optimal solutions were found\cite{GSA} with a linear dependence rather than a quadratic.
+        Consider a collection of $N$ masses $\{m^1, m^2, \ldots, m^N\}$ at the $k$-th time step defined by 
+        
+        \begin{equation} \label{eq:mass}
+            m_k^i = \frac{\mathrm{fit}_k^i - \mathrm{worst}_k}{\mathrm{best}_k- \mathrm{worst}_k}
+        \end{equation}
+        
+        where the $i$-th mass $m^i$ has position $x^i$ and velocity $v^i$, each in $n$ dimensions.  The gravitational force $F^{ij}$ acting on mass $m^i$ from mass $m^j$ is \emph{\underline{similar} to} the Newtonian Gravitational force as 
 
-            To inject stochasticity into the method, define the net gravitational force $F^i$ acting on mass $m^i$ as 
+        \begin{equation}
+            F_k^{ij} = \frac{G_k m_k^i m_k^j}{R_k^{ij} + \varepsilon} \left(x_k^j - x_k^i \right)
+        \end{equation}
 
-            \begin{equation}\label{eq:gravity}
-                F_k^i = \sum_{j = 1, j \neq i}^{N} r^j F_k^{ij}
-            \end{equation}
+        where $G_k = G_0 e^{-\alpha t_k /T}$, and $G_0, \alpha$, and $T$ are tuning parameters, is the universal gravitational constant, $R^{ij}$ is the Euclidean-distance between mass $m^i$ and mass $m^j$ given by, and $\varepsilon$ is some small constant.  The discrepancy between this model and that of traditional Newtonian gravitational mechanics is that in the latter, the dependence of the distance between the masses is squared (i.e. $\left(R^{ij}\right)^2$), rather linear (i.e. $R^{ij}$); the linear dependence given here is a note that more optimal solutions were found\cite{GSA} with a linear dependence rather than a quadratic.
 
-            where $r^j$ is a random number such that $0 \leq r^j \leq 1$.
+        To inject stochasticity into the method, define the net gravitational force $F^i$ acting on mass $m^i$ as 
 
-            This description of gravity is under the model physics known as ``Newtonian Mechanics'' (NM).  As one of the central goals in modelling a physical system is obtaining the system's so-called ``equation of motion'', there exists Newton's Second Law (NSL) that gives us just that.  NSL states that for a mass $m$ moving with acceleration $a$, the sum of all forces $\sum_i F^i$ acting on that mass relate by
+        \begin{equation}\label{eq:gravity}
+            F_k^i = \sum_{j = 1, j \neq i}^{N} r^j F_k^{ij}
+        \end{equation}
 
-            \begin{equation}\label{eq:newtons}
-                \sum_i F^i = m a
-            \end{equation}
+        where $r^j$ is a random number such that $0 \leq r^j \leq 1$.
 
-            If we only consider the gravitational forces acting each mass, we combine Newton's model of gravity (eq. \ref{eq:gravity}) and NSL (eq. \ref{eq:newtons}) to give the equation of motion for this system i.e. the acceleration $a_k^i$ at time step $k$ of mass $m_k^i$ under the influence of gravitational interaction
+\pagebreak
 
-            \begin{equation}\label{eq:eom}
-                a_k^i = \frac{F_k^i}{m_k^i}.
-            \end{equation}
+        This description of gravity is under the model physics known as ``Newtonian Mechanics'' (NM).  As one of the central goals in modelling a physical system is obtaining the system's so-called ``equation of motion'', there exists Newton's Second Law (NSL) that gives us just that.  NSL states that for a mass $m$ moving with acceleration $a$, the sum of all forces $\sum_i F^i$ acting on that mass relate by
 
-            \begin{wrapfigure}{r}{0.45\textwidth}
-                \begin{center}
-                    \includegraphics{Images/GSA.jpg}
-                \end{center}
-                \caption{The Gravitational Search Algorithm}
-            \end{wrapfigure}
+        \begin{equation}\label{eq:newtons}
+            \sum_i F^i = m a
+        \end{equation}
 
-            The equation of motion of a physical system completely determines its dynamics, as such, it the goal of us as physicists (at least during the reading of the investigation) to find the sequence positions that satisfy (i.e. solve) the equation of motion.  Analytically, the equation of motion is often a second-order differential equation, but we can still do out best to solve it on a computer.  There is a near infinite number of methods to approximating a solution to a differential equation (called \emph{numerical integrators}) using finite techniques, but here we use the so-called `symplectic Euler Method'
+        If we only consider the gravitational forces acting each mass, we combine Newton's model of gravity (eq. \ref{eq:gravity}) and NSL (eq. \ref{eq:newtons}) to give the equation of motion for this system i.e. the acceleration $a_k^i$ at time step $k$ of mass $m_k^i$ under the influence of gravitational interaction
 
-            \begin{align}
-                v_n^i &= r_i v_{n-1}^i + a_{n - 1}^i \\
-                x_n^i &= x_{n - 1}^i + v_n^i
-            \end{align}
+        \begin{equation}\label{eq:eom}
+            a_k^i = \frac{F_k^i}{m_k^i}.
+        \end{equation}
 
-            where $x_n^i, v_n^i$ are the position and velocity, respectively, of mass $i$ at step $n$.
+        \begin{wrapfigure}{r}{0.45\textwidth}
+            \begin{center}
+                \includegraphics{Images/GSA.jpg}
+            \end{center}
+            \caption{The Gravitational Search Algorithm}
+        \end{wrapfigure}
+
+        The equation of motion of a physical system completely determines its dynamics, as such, it the goal of us as physicists (at least during the reading of the investigation) to find the sequence of positions that satisfy (i.e. solve) the equation of motion.  Analytically, the equation of motion is often a second-order differential equation, but an approximate solution can still be yielded.  There is a near infinite number of methods to approximating a solution to a differential equation (called \emph{numerical integrators}) using finite techniques, but equations \ref{eq:velocity} and \ref{eq:position} show how we use the so-called `symplectic Euler Method':
+
+        \begin{align}
+            \label{eq:velocity} v_n^i &= r_i v_{n-1}^i + a_{n - 1}^i \\
+            \label{eq:position} x_n^i &= x_{n - 1}^i + v_n^i
+        \end{align}
+
+        where $x_n^i, v_n^i$ are the position and velocity, respectively, of mass $i$ at step $n$.
 
 \clearpage
 \newpage
+
+    \subsection{The Discrete GSA}
+
+        \begin{equation} \label{eq:force}
+            F_{ij} = rand \times G \times \frac{M_j M_i}{NR_{ij}} R_{ij}
+        \end{equation}
+
+        \begin{equation} \label{eq:dml}
+            a_{ij} = I_{ij} = \left\lceil \frac{F_{ij}}{M_i} \right\rceil = \left\lceil rand \times G \times \frac{M_j}{NR_{ij}} \times R_{ij} \right\rceil
+        \end{equation}
+
+        \begin{algorithm}
+            \caption{The Discrete Gravitational Search Algorithm}
+            \KwIn{$n$ as the size of input instance, $s$ as the number of searcher agents, $K_{\text{initial}}$ as the initial value of $K$, $G_{\text{initial}}$ as the initial value of the gravitational coefficient, and $G_{\text{end}}$ as the final value of the gravitational coefficient.}
+            \tcp{initialization phase}
+            $iteration \gets 0$\;
+            Generate the initial population $P(iteration)$ of the solutions by greedy randomized algorithm\;
+            Evaluate the fitnes for each agent of $P(iteration)$\;
+            Calculate the gravitational mass for each agent of $P(iteration)$ by equation \ref{eq:mass}\;
+            Generate the initial velocity $V(iteration)$ randomly\;
+            \tcp{main phase}
+            \While{stopping criteria is not satisfied}{
+                \tcp{Dependent Movement Operator phase}
+                Update $G, K$, and $Kbest$\;
+                Calculate $I_{ij}$ for each agent $i$ and $j \in Kbest$ based on equation (\ref{eq:force})\;
+                \For{i = 1 to s}{
+                    $P_i(iteration + 1) \gets$ output of MTMNS algorithm execution with input parameters: $P_i$ as starting solutions, $K$ as the number of target solutions, $Kbest$ as target solution set, and $I_{ij}$ fo reach agent $j \in Kbest$ as movement lengths set
+                }
+                \tcp{Independent Movement Operator phase}
+                \For{i = 1 to s}{
+                    \tcp{$V_i$(iteration) is the previous movement length and $rand$ is a random number in $[0,1]$}
+                    $IML \gets \lceil rand \times V_i \rceil$\;
+                    $P_i(iteration + 1) \gets$ output of the modifed local search algorithm with input parameter: $P_i(iteration)$ as starting solution and $IML$ maximum movement length\;
+                    Evaluate the fitness for each agent of $P(iteration + 1)$\;
+                    Calculate the gravitaitonal mass for each agent of $P(iteration + 1)$ by equation (\ref{eq:mass})\;
+                    $iteration \gets iteration + 1$
+                }
+            }
+            \KwOut{Best solution found}
+        \end{algorithm}
 
 \section{Results}
 \section{Conclusion}
