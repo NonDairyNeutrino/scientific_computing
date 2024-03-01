@@ -49,8 +49,8 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
     updateInterval = 50
     # CORE
     for step in 1:MAXSTEPS
-        step % updateInterval == 0 ? println("step: ", step) : nothing
-        step % updateInterval == 0 ? println("best fitness: ", fitness(argmax(solution -> solution.mass, solutionVector).position)) : nothing
+        # step % updateInterval == 0 ? println("step: ", step) : nothing
+        # step % updateInterval == 0 ? println("best fitness: ", fitness(argmax(solution -> solution.mass, solutionVector).position)) : nothing
 
         G                        = GVECTOR[step]
         gravityFunction          = gravity(DISTANCEMAX, G)
