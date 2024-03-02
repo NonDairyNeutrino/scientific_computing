@@ -17,13 +17,14 @@ Tries to give an optimal solution to the Traveling Sales Problem
 """
 function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
     # PARAMETERS
-    if isempty(args)
-        DATAFILEPATH = "data/bays29.tsp"
+    
+    if length(args) == 1
+        DATAFILEPATH = args[1]
         MAXSTEPS     = 200 # 200 from literature
         AGENTCOUNT   = 10  # 10 from literature
     else
         DATAFILEPATH         = args[1]
-        MAXSTEPS, AGENTCOUNT = parse.(Int, args[2:3])
+        MAXSTEPS, AGENTCOUNT = (PROGRAM_FILE == @__FILE__) ? parse.(Int, args[2:3]) : args[2:3]
     end
 
     INITIALK   = ceil(Int, 0.5 * AGENTCOUNT) # 5 from literature
