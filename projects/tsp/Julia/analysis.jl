@@ -1,6 +1,7 @@
 # Functionality to statistically significant analysis on the DGSA as applied to the tsp
 mainFunctionPath, dataDirectoryPath = ARGS
 using Statistics, DelimitedFiles # from standard library
+using ProgressBars
 include(mainFunctionPath)
 using .TravelingSales
 
@@ -12,28 +13,35 @@ function doStats(v::Vector)
     return [bounds..., middle , average, stdDev]
 end
 
-# create data
-const NUM_EXPERIMENTS = 30
+const NUM_EXPERIMENTS = 30  # must be at least 30; see central limit theorem
 const NUM_STEPS       = 200 # choose 200 as in literature
 const NUM_AGENTS      = 10  # choose 10 as in literature
+const MAX_DIMENSION   = 100
 
-problemVector = readdir(dataDirectoryPath, join=true)[1:1] # ONLY DO THE FIRST FILE IN THE DIRECTORY
-statsMatrix = Matrix(undef, length(problemVector), 6#= number of stats as above e.g. name, minimum, etc. =#)
-
-#= Threads.@threads =# for (index, tsp) in enumerate(problemVector)
-    name = match(r"(?<name>\w+).", tsp)["name"]
-    println("starting $name on thread ", Threads.threadid())
-
-    data = Vector(undef, NUM_EXPERIMENTS)
-    Threads.@threads for i in 1:NUM_EXPERIMENTS
-        data[i] = main([tsp, NUM_STEPS, NUM_AGENTS])[2]
-    end
-    statsMatrix[index, 1]     = basename(tsp)
-    statsMatrix[index, 2:end] = doStats(data)
-end
+# sort problems by dimension
+getDimension(name) = parse(Int, match(r"[a-zA-Z]+(?<dim>\d+)", name)["dim"])
+sortedProblemVector= sort(readdir(dataDirectoryPath, join=true), by = getDimension)
+problemVector      = filter(problem -> getDimension(problem) <= MAX_DIMENSION, sortedProblemVector)
 
 # initialize data file
 dataFile = open("analysis_data.csv", "w")
+writedlm(dataFile, ["experiments," NUM_EXPERIMENTS; "steps," NUM_STEPS; "agents," NUM_AGENTS])
 writedlm(dataFile, [["name", "minimum", "maximum", "median", "average", "standard deviation"]], ", ")
-writedlm(dataFile, statsMatrix, ", ")
+
+for (index, tsp) in enumerate(problemVector)
+    name = match(r"\w+/(?<name>\w+).", tsp)["name"]
+    println("starting $name")
+    adjacencyMatrix = TravelingSales.parseProblem(tsp)
+
+    data = Vector(undef, NUM_EXPERIMENTS)
+    Threads.@threads for i in ProgressBar(1:NUM_EXPERIMENTS)
+        # println("starting $name - run $i/$NUM_EXPERIMENTS on thread ", Threads.threadid())
+        data[i] = main([adjacencyMatrix, NUM_STEPS, NUM_AGENTS])[2]
+    end
+
+    writedlm(dataFile, [[name, doStats(data)...]], ", ")
+
+    println("========== ", name, "COMPLETE ==========")
+end
+
 close(dataFile)
