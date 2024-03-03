@@ -1,5 +1,23 @@
 # Functionality to statistically significant analysis on the DGSA as applied to the tsp
-mainFunctionPath, dataDirectoryPath = ARGS
+
+# It's suggested to run this file from the tsp/Julia directory with the command
+# julia -t auto --project=./TravelingSales analysis.jl TravelingSales/src/TravelingSales.jl ../data
+
+if length(ARGS) == 2
+    mainFunctionPath, dataDirectoryPath = ARGS
+    println("no dimension bounds given, proceeding with 1 <= dim <= 20")
+    MIN_DIMENSION, MAX_DIMENSION = [1, 20]
+elseif length(ARGS) == 3
+    mainFunctionPath, dataDirectoryPath = ARGS[1:2]
+    MAX_DIMENSION = parse(Int, ARGS[3])
+    MIN_DIMENSION = 1
+elseif length(ARGS) == 4
+    mainFunctionPath, dataDirectoryPath = ARGS[1:2]
+    MIN_DIMENSION, MAX_DIMENSION = parse.(Int, ARGS[3:4])
+else
+
+end
+
 using Statistics, DelimitedFiles # from standard library
 using ProgressBars
 include(mainFunctionPath)
@@ -16,19 +34,24 @@ end
 const NUM_EXPERIMENTS = 30  # must be at least 30; see central limit theorem
 const NUM_STEPS       = 200 # choose 200 as in literature
 const NUM_AGENTS      = 10  # choose 10 as in literature
-const MAX_DIMENSION   = 100
 
 # sort problems by dimension
 getDimension(name) = parse(Int, match(r"[a-zA-Z]+(?<dim>\d+)", name)["dim"])
-sortedProblemVector= sort(readdir(dataDirectoryPath, join=true), by = getDimension)
-problemVector      = filter(problem -> getDimension(problem) <= MAX_DIMENSION, sortedProblemVector)
+const sortedProblemVector= sort(readdir(dataDirectoryPath, join=true), by = getDimension)
+try
+    global filteredProblemVector = filter(problem -> MIN_DIMENSION <= getDimension(problem) <= MAX_DIMENSION, sortedProblemVector)
+    @assert !isempty(filteredProblemVector)
+catch e
+    println("no problems in dimension bounds. aborting.")
+    exit()
+end
 
 # initialize data file
-dataFile = open("analysis_data.csv", "w")
+const dataFile = open("analysis_data.csv", "w")
 writedlm(dataFile, ["experiments," NUM_EXPERIMENTS; "steps," NUM_STEPS; "agents," NUM_AGENTS])
 writedlm(dataFile, [["name", "minimum", "maximum", "median", "average", "standard deviation"]], ", ")
 
-for (index, tsp) in enumerate(problemVector)
+for (index, tsp) in enumerate(filteredProblemVector)
     name = match(r"\w+/(?<name>\w+).", tsp)["name"]
     println("starting $name")
     adjacencyMatrix = TravelingSales.parseProblem(tsp)
