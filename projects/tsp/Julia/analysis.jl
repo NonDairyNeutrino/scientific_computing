@@ -3,6 +3,15 @@
 # It's suggested to run this file from the tsp/Julia directory with the command
 # julia -t auto --project=./TravelingSales analysis.jl TravelingSales/src/TravelingSales.jl ../data
 
+using Statistics, DelimitedFiles # from standard library
+using ProgressBars
+include(mainFunctionPath)
+using .TravelingSales
+
+const NUM_EXPERIMENTS = 30  # must be at least 30; see central limit theorem
+const NUM_STEPS       = 200 # choose 200 as in literature
+const NUM_AGENTS      = 10  # choose 10 as in literature
+
 if length(ARGS) == 2
     mainFunctionPath, dataDirectoryPath = ARGS
     println("no dimension bounds given, proceeding with 1 <= dim <= 20")
@@ -18,11 +27,6 @@ else
 
 end
 
-using Statistics, DelimitedFiles # from standard library
-using ProgressBars
-include(mainFunctionPath)
-using .TravelingSales
-
 function doStats(v::Vector)
     average = round(mean(v)   , sigdigits=3)
     stdDev = round(std(v)     , sigdigits=3)
@@ -30,10 +34,6 @@ function doStats(v::Vector)
     middle = round(median(v)  , sigdigits=3)
     return [bounds..., middle , average, stdDev]
 end
-
-const NUM_EXPERIMENTS = 30  # must be at least 30; see central limit theorem
-const NUM_STEPS       = 200 # choose 200 as in literature
-const NUM_AGENTS      = 10  # choose 10 as in literature
 
 # sort problems by dimension
 getDimension(name) = parse(Int, match(r"[a-zA-Z]+(?<dim>\d+)", name)["dim"])
