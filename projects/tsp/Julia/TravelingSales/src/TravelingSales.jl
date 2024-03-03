@@ -22,8 +22,15 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
         DATAFILEPATH = args[1]
         MAXSTEPS     = 200 # 200 from literature
         AGENTCOUNT   = 10  # 10 from literature
-    else
-        DATAFILEPATH         = args[1]
+    elseif length(args) == 3
+        adjacencyMatrix = nothing
+        try 
+            @assert isfile(args[1])
+            DATAFILEPATH    = args[1]
+            adjacencyMatrix = parseProblem(DATAFILEPATH)
+        catch
+            adjacencyMatrix = args[1]
+        end
         MAXSTEPS, AGENTCOUNT = (PROGRAM_FILE == @__FILE__) ? parse.(Int, args[2:3]) : args[2:3]
     end
 
@@ -39,7 +46,8 @@ function main(args :: Vector) :: Tuple{Vector{Int}, Float64}
 
     # INITIALIZE
     ## initialize population
-    tsp            = Problem(parseProblem(DATAFILEPATH))
+    
+    tsp            = Problem(adjacencyMatrix)
     DISTANCEMAX    = tsp.dimension - 1 # max distance is the max swaps needed to get from one to another
     fitness        = tourWeight(tsp.matrix)
     localSearchFunction! = localSearch!(fitness)
