@@ -220,11 +220,45 @@ Pseudocode for the execution of this algorithm can be seen below
 
     \subsection{The Discrete GSA}
 
-        The biggest difference between the Gravitaitonal Search Algorithm and its discrete counterpart is the notion of distance, similar to Paritcle Swarm Optimization and its discrete variation.  The traditional GSA is for real-valued optimization, and thus is capable of handling distances between solutions as simply the eulcidean (or any other metric) distance between two points in the seach space.  Not only does this make calculating the distance straightforward, but also interpreting the velocity and acceleration as they are the same as that in physics.  The Discrete Gravitational Search Algorithm (DGSA) needs to adjust its implementation from the original to account for the search space instead being one of combinatorial optimization.
+        \subsubsection{Tour Space}
 
-        The search space of the classical TSP is, instead of a collection of real numbers in one or more dimensions, it is instead the set of permutations of the set of cities in the problem.  For example, a three-dimensional TSP with cities enumerated as $\{1,2,3\}$ has a solution space $S$ such $S = \{\langle 1,2,3 \rangle, \langle 2,1,3 \rangle, \langle 3,2,1 \rangle, \langle 1,3,2 \rangle, \langle 2,3,1\rangle, \langle 3,1,2 \rangle\}$, where each of these solutions implicitly has its starting node appened at its end to create a tour.
+            The biggest difference between the Gravitaitonal Search Algorithm and its discrete counterpart is the notion of distance, similar to Paritcle Swarm Optimization and its discrete variation.  The traditional GSA is for real-valued optimization, and thus is capable of handling distances between solutions as simply the eulcidean (or any other metric) distance between two points in the seach space.  Not only does this make calculating the distance straightforward, but also interpreting the velocity and acceleration as they are the same as that in physics.  The Discrete Gravitational Search Algorithm (DGSA) needs to adjust its implementation from the original to account for the search space instead being one of combinatorial optimization.
 
-        
+            The search space of the classical TSP is, instead of a collection of real numbers in one or more dimensions, it is instead the set of permutations of the set of cities in the problem.  For example, a three-dimensional TSP with cities enumerated as $\{1,2,3\}$ has a solution space $S$ such $S = \{\langle 1,2,3 \rangle, \langle 2,1,3 \rangle, \langle 3,2,1 \rangle, \langle 1,3,2 \rangle, \langle 2,3,1\rangle, \langle 3,1,2 \rangle\}$, where each of these solutions implicitly has its starting node appened at its end to create a tour. %TODO: change node names to a,b,c to avoid confusion with their indices
+
+            % insert figures of examlple paths
+
+        \subsubsection{The Geometry of Tour Space}
+
+            Because the search space has this structure, the main concern that arises when adapting the gsa to a discrete version suitable for use in soling the TSP is how distance is defined.  In real-space, the distance between solutions can be the Euclidean distance between the solutions vectors, whereas our solution-space of permutations needs more care.  One way to define distance in this space is through transposition of elements in each solution.  For example
+
+            \begin{equation}
+                d(\langle 1,2,3 \rangle, \langle 2,1,3 \rangle) = 1,
+            \end{equation}
+
+            where $d(\langle 1,2,3 \rangle, \langle 2,1,3 \rangle)$ is the distance between solution-tours $\langle 1,2,3 \rangle$ and $\langle 2,1,3 \rangle$.  The above equality holds because the two sequences require a minimum of one swap of its elements between their respective indices to equal the other.  Likewise
+
+            \begin{equation}
+                d(\langle 1,2,3 \rangle, \langle 2,3,1 \rangle) = 2,
+            \end{equation}
+
+            because $\langle 2,3,1 \rangle$ could swap elements at indices $i = 1,2$ to yield $\langle 3,2,1 \rangle$ and then swap elements at indices $i = 1,3$ to yield $\langle 1,2,3 \rangle$, which is equal to the other solution tour.
+
+            \begin{algorithm}
+                \caption{swap\_distance}
+                \KwIn{tour $x$, tour $y$}
+                \KwOut{int distance}
+                $y^\prime \gets y$\;
+                \For{i = each index of x}{
+                    $index \gets$ position of $x[i]$ in $y^\prime$\;
+                    swap elements at indices $i$ and $index$ of $y^\prime$\;
+                    \If{$y^\prime == x$}{
+                        \Return{$i$}
+                    }
+                }
+            \end{algorithm}
+
+
 
         \begin{equation} \label{eq:force}
             F_{ij} = rand \times G \times \frac{M_j M_i}{NR_{ij}} R_{ij}
